@@ -664,26 +664,14 @@ def admin_logout():
 @app.route("/db-test")
 def db_test():
     try:
-        connection = pymysql.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-            port=int(os.getenv("DB_PORT", "3306")),
-            connect_timeout=10
-        )
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            value = result.scalar()
 
-        cursor = connection.cursor()
-        cursor.execute("SELECT 1")
-        result = cursor.fetchone()
+        if value == 1:
+            return "✅ DATABASE CONNECTED SUCCESSFULLY! Using DATABASE_URL."
 
-        cursor.close()
-        connection.close()
-
-        if result and result[0] == 1:
-            return "✅ DATABASE CONNECTED SUCCESSFULLY!"
-
-        return "❌ Database responded, but test failed."
+        return "❌ Database responded, but test failed.", 500
 
     except Exception as e:
         return f"❌ DATABASE CONNECTION FAILED: {str(e)}", 500
@@ -695,21 +683,13 @@ def db_tables():
             result = connection.execute(text("SHOW TABLES"))
             tables = [row[0] for row in result]
 
-        if not tables:
-            return "<h2>⚠️ Connected, but no tables found.</h2>"
-
-        html = "<h2>✅ Aiven Database Tables</h2><ul>"
-
-        for table in tables:
-            html += f"<li>{table}</li>"
-
-        html += "</ul>"
-
-        return html
+        if tables:
+            return f"✅ DATABASE TABLES EXIST: {', '.join(tables)}"
+        else:
+            return "❌ No tables found in the database.", 404
 
     except Exception as e:
-        return f"<h2>❌ Database Error</h2><p>{str(e)}</p>", 500
-
+        return f"❌ DATABASE TABLE CHECK FAILED: {str(e)}", 500
 if __name__ == "__main__":
     app.run(
         host=os.getenv("HOST", "127.0.0.1"),
