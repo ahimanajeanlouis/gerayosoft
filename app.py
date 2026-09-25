@@ -661,15 +661,6 @@ def admin_logout():
     session.pop("is_admin", None)
     return redirect(url_for("index"))
 
-
-if __name__ == "__main__":
-    app.run(
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=int(os.getenv("PORT", "5000")),
-        debug=os.getenv("FLASK_DEBUG", "1") == "1",
-    )
-
-
 @app.route("/db-test")
 def db_test():
     try:
@@ -696,3 +687,13 @@ def db_test():
 
     except Exception as e:
         return f"❌ DATABASE CONNECTION FAILED: {str(e)}", 500
+
+
+if __name__ == "__main__":
+    app.run(
+        host=os.getenv("HOST", "127.0.0.1"),
+        port=int(os.getenv("PORT", "5000")),
+        debug=os.getenv("FLASK_DEBUG", "1") == "1",
+    )
+
+
