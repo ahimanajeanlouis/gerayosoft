@@ -688,6 +688,27 @@ def db_test():
     except Exception as e:
         return f"❌ DATABASE CONNECTION FAILED: {str(e)}", 500
 
+@app.route("/db-tables")
+def db_tables():
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text("SHOW TABLES"))
+            tables = [row[0] for row in result]
+
+        if not tables:
+            return "<h2>⚠️ Connected, but no tables found.</h2>"
+
+        html = "<h2>✅ Aiven Database Tables</h2><ul>"
+
+        for table in tables:
+            html += f"<li>{table}</li>"
+
+        html += "</ul>"
+
+        return html
+
+    except Exception as e:
+        return f"<h2>❌ Database Error</h2><p>{str(e)}</p>", 500
 
 if __name__ == "__main__":
     app.run(
