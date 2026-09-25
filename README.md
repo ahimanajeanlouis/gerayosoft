@@ -76,3 +76,4 @@ The ride, driver-location, nearby-driver, verification, and password-reset endpo
 ## 6. Assets
 
 The original `styles.css`, main image, uploaded documents, and language files are included. The two screenshot filenames referenced by the original public pages were not present as standalone root assets in the supplied website, so the repaired package includes safe fallback copies of the main image under those filenames rather than showing broken images.
+"# gerayosoft" 
