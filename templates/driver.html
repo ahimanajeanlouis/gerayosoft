@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver - GerayoRide</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+  background:#f5f7fb;
+  color:#222;
+}
+
+/* HERO */
+.driver-hero{
+  min-height:100vh;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:60px;
+  gap:40px;
+  background:linear-gradient(to right,#fff8dc,#ffffff);
+}
+
+/* TEXT */
+.hero-text{
+  flex:1;
+}
+
+.hero-text h1{
+  font-size:58px;
+  line-height:1.2;
+  margin-bottom:20px;
+  color:#111;
+}
+
+.hero-text h1 span{
+  color:#ff6600;
+}
+
+.hero-text p{
+  font-size:18px;
+  line-height:1.7;
+  color:#666;
+  margin-bottom:30px;
+  max-width:550px;
+}
+
+/* BUTTONS */
+.hero-buttons{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:13px 28px;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:bold;
+  transition:0.3s;
+}
+
+.primary{
+  background:#ff6600;
+  color:white;
+}
+
+.primary:hover{
+  background:#e65c00;
+  transform:translateY(-3px);
+}
+
+.secondary{
+  background:#111;
+  color:white;
+}
+
+.secondary:hover{
+  background:#333;
+  transform:translateY(-3px);
+}
+
+/* IMAGE SLIDER */
+.hero-image{
+  width:500px;
+  height:500px;
+  overflow:hidden;
+  border-radius:20px;
+  position:relative;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+.slides{
+  display:flex;
+  width:100%;
+  height:100%;
+  transition:transform 1s ease-in-out;
+}
+
+.slide{
+  min-width:100%;
+  height:100%;
+}
+
+.slide img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* BENEFITS */
+.benefits{
+  padding:80px 60px;
+  background:white;
+  text-align:center;
+}
+
+.benefits h2{
+  font-size:42px;
+  margin-bottom:50px;
+}
+
+.benefit-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:25px;
+}
+
+.benefit{
+  background:#f8f9fc;
+  padding:35px 25px;
+  border-radius:18px;
+  transition:0.3s;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.benefit:hover{
+  transform:translateY(-10px);
+  background:#fff4d6;
+}
+
+.benefit i{
+  font-size:40px;
+  color:#ff6600;
+  margin-bottom:15px;
+}
+
+.benefit h3{
+  margin-bottom:10px;
+}
+
+/* HOW IT WORKS */
+.steps-section{
+  padding:80px 60px;
+  text-align:center;
+}
+
+.steps-section h2{
+  font-size:42px;
+  margin-bottom:50px;
+}
+
+.steps{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:25px;
+}
+
+.step{
+  background:white;
+  padding:35px 25px;
+  border-radius:18px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.number{
+  width:50px;
+  height:50px;
+  background:#ff6600;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 15px;
+  font-weight:bold;
+}
+
+/* CTA */
+.cta{
+  background:#111;
+  color:white;
+  text-align:center;
+  padding:80px 20px;
+}
+
+.cta h2{
+  font-size:40px;
+  margin-bottom:15px;
+}
+
+.cta p{
+  color:#bbb;
+  margin-bottom:30px;
+}
+
+/* FOOTER */
+footer{
+  background:#0f0f0f;
+  color:#888;
+  text-align:center;
+  padding:20px;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+
+  .driver-hero{
+    flex-direction:column;
+    text-align:center;
+    padding:50px 20px;
+  }
+
+  .hero-text h1{
+    font-size:40px;
+  }
+
+  .hero-buttons{
+    justify-content:center;
+  }
+
+  .hero-image{
+    width:100%;
+    max-width:450px;
+    height:400px;
+  }
+
+}
+
+.loading-overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.95);
+  z-index:9999;
+  transition:opacity 0.3s ease;
+}
+
+.loading-overlay.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+.spinner{
+  width:70px;
+  height:70px;
+  border:8px solid rgba(0,0,0,0.1);
+  border-top-color:#ff6600;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+
+</style>
+</head>
+
+<body>
+  <div id="page-loader" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+<!-- HERO -->
+<section class="driver-hero">
+
+  <div class="hero-text">
+
+    <h1>{{ t.get('driver_hero_title', 'driver_hero_title') }}</h1>
+
+    <p>
+      {{ t.get('driver_hero_description', 'driver_hero_description') }}
+    </p>
+
+    <div class="hero-buttons">
+      <a href="{{ url_for('register') }}"><button class="btn primary">{{ t.get('registration', 'registration') }}</button></a>
+      <a href="{{ url_for('login') }}"><button class="btn secondary">{{ t.get('login', 'login') }}</button></a>
+    </div>
+
+  </div>
+
+  <!-- IMAGE SLIDER -->
+  <div class="hero-image">
+
+    <div class="slides">
+
+      <div class="slide">
+        <img src="{{ url_for('static', filename='image.png') }}">
+      </div>
+
+      <div class="slide">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}">
+      </div>
+
+      <div class="slide">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}">
+      </div>
+
+      <div class="slide">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}">
+      </div>
+
+      <div class="slide">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}">
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits">
+
+  <h2>{{ t.get('driver_why_choose', 'driver_why_choose') }}</h2>
+
+  <div class="benefit-cards">
+
+    <div class="benefit">
+      <i class="fas fa-money-bill-wave"></i>
+      <h3>{{ t.get('driver_daily_earnings', 'driver_daily_earnings') }}</h3>
+      <p>{{ t.get('driver_daily_earnings_desc', 'driver_daily_earnings_desc') }}</p>
+    </div>
+
+    <div class="benefit">
+      <i class="fas fa-clock"></i>
+      <h3>{{ t.get('driver_flexible_hours', 'driver_flexible_hours') }}</h3>
+      <p>{{ t.get('driver_flexible_hours_desc', 'driver_flexible_hours_desc') }}</p>
+    </div>
+
+    <div class="benefit">
+      <i class="fas fa-map-marker-alt"></i>
+      <h3>{{ t.get('driver_nearby_clients', 'driver_nearby_clients') }}</h3>
+      <p>{{ t.get('driver_nearby_clients_desc', 'driver_nearby_clients_desc') }}</p>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps-section">
+
+  <h2>{{ t.get('driver_how_it_works', 'driver_how_it_works') }}</h2>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="number">1</div>
+      <h3>{{ t.get('driver_step_register', 'driver_step_register') }}</h3>
+      <p>{{ t.get('driver_step_register_desc', 'driver_step_register_desc') }}</p>
+    </div>
+
+    <div class="step">
+      <div class="number">2</div>
+      <h3>{{ t.get('driver_step_verification', 'driver_step_verification') }}</h3>
+      <p>{{ t.get('driver_step_verification_desc', 'driver_step_verification_desc') }}</p>
+    </div>
+
+    <div class="step">
+      <div class="number">3</div>
+      <h3>{{ t.get('driver_step_accept_rides', 'driver_step_accept_rides') }}</h3>
+      <p>{{ t.get('driver_step_accept_rides_desc', 'driver_step_accept_rides_desc') }}</p>
+    </div>
+
+    <div class="step">
+      <div class="number">4</div>
+      <h3>{{ t.get('driver_step_earn_money', 'driver_step_earn_money') }}</h3>
+      <p>{{ t.get('driver_step_earn_money_desc', 'driver_step_earn_money_desc') }}</p>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- CTA -->
+<section class="cta">
+
+  <h2>{{ t.get('driver_cta_title', 'driver_cta_title') }}</h2>
+
+  <p>{{ t.get('driver_cta_description', 'driver_cta_description') }}</p>
+
+  <a href="{{ url_for('register') }}"><button class="btn primary">{{ t.get('btn_become_driver', 'btn_become_driver') }}</button></a>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+  {{ t.get('footer_driver_copyright', 'footer_driver_copyright') }}
+</footer>
+
+<script>
+
+const slides = document.querySelector('.slides');
+const totalSlides = document.querySelectorAll('.slide').length;
+
+let index = 0;
+
+function autoSlide(){
+
+  index++;
+
+  if(index >= totalSlides){
+    index = 0;
+  }
+
+  slides.style.transform = `translateX(-${index * 100}%)`;
+
+}
+
+setInterval(autoSlide, 5000);
+
+function hidePageLoader(){
+  const loader = document.getElementById('page-loader');
+  if(loader){
+    loader.classList.add('hidden');
+  }
+}
+
+if(document.readyState === 'complete'){
+  hidePageLoader();
+} else {
+  window.addEventListener('load', hidePageLoader);
+}
+</script>
+
+</body>
+</html>

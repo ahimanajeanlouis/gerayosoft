@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>{{ t.get('welcome_message', 'welcome_message') }} - GerayoSoft</title>
+  <meta name="description" content="{{ t.get('description', 'description') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Cache bust with timestamp -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_bust }}">
+  <style>
+    /* EMERGENCY INLINE FIXES - These load first and cannot be cached */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Force hide mobile nav until toggled */
+    @media (max-width: 767px) {
+      #mainNav { display: none !important; }
+      #mainNav.active { display: block !important; }
+    }
+
+    /* Remove ALL bullets everywhere */
+    ul, li { list-style: none !important; }
+
+    /* Navbar fix */
+    .navbar { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 70px; 
+      background: #ffcc00; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 0 20px; 
+      z-index: 9999; 
+    }
+
+    .logo h1 { font-size: 28px; color: #111; }
+    .logo span { color: #ff6600; }
+
+    /* Hamburger */
+    #menuToggle { 
+      display: none; 
+      background: none; 
+      border: none; 
+      font-size: 24px; 
+      cursor: pointer; 
+      color: #111; 
+    }
+
+    @media (max-width: 767px) {
+      #menuToggle { display: block !important; }
+    }
+
+    /* Desktop nav */
+    #mainNav ul { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      list-style: none; 
+    }
+
+    #mainNav ul li { list-style: none; }
+
+    #mainNav ul li a { 
+      text-decoration: none; 
+      color: #222; 
+      font-weight: 600; 
+      padding: 8px 14px; 
+      border-radius: 8px; 
+    }
+
+    .btn-primary { 
+      background: #ff6600; 
+      color: white !important; 
+      padding: 10px 22px !important; 
+      border-radius: 30px !important; 
+    }
+
+    .btn-dark { 
+      background: #111; 
+      color: white !important; 
+      padding: 10px 22px !important; 
+      border-radius: 30px !important; 
+    }
+  </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">
+      <h1>Gerayo<span>Soft</span></h1>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <nav id="mainNav">
+      <ul>
+        <li><a href="{{ url_for('index') }}">{{ t.get('nav_home', 'nav_home') }}</a></li>
+        <li><a href="{{ url_for('driver') }}">{{ t.get('nav_drivers', 'nav_drivers') }}</a></li>
+        <li><a href="{{ url_for('client') }}">{{ t.get('nav_clients', 'nav_clients') }}</a></li>
+        <li><a href="#contact">{{ t.get('nav_contact', 'nav_contact') }}</a></li>
+        <li><a href="{{ url_for('register') }}" class="btn-primary">{{ t.get('nav_signup', 'nav_signup') }}</a></li>
+        <li><a href="{{ url_for('login') }}" class="btn-dark">{{ t.get('nav_login', 'nav_login') }}</a></li>
+        <li>
+          <select class="lang-select" onchange="location = this.value">
+            <option value="?lang=en" {% if lang == 'en' %}selected{% endif %}>English</option>
+            <option value="?lang=rw" {% if lang == 'rw' %}selected{% endif %}>Kinyarwanda</option>
+          </select>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h2>{{ t.get('welcome_message', 'welcome_message') }}</h2>
+      <p>{{ t.get('description', 'description') }}</p>
+      <div class="hero-buttons">
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
+        <a href="{{ url_for('driver') }}" class="btn-dark">{{ t.get('become_rider', 'become_rider') }}</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="{{ url_for('static', filename='image.png') }}" alt="GerayoSoft">
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <h3>{{ t.get('why_choose_us', 'why_choose_us') }}</h3>
+    <p>{{ t.get('subtitle_features', 'subtitle_features') }}</p>
+    <div class="feature-boxes">
+      <div class="box">
+        <div class="box-icon"><i class="fas fa-bolt"></i></div>
+        <h4>{{ t.get('fast_pickup', 'fast_pickup') }}</h4>
+        <p>{{ t.get('fast_pickup_desc', 'fast_pickup_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
+      </div>
+      <div class="box">
+        <div class="box-icon"><i class="fas fa-tags"></i></div>
+        <h4>{{ t.get('affordable_prices', 'affordable_prices') }}</h4>
+        <p>{{ t.get('affordable_prices_desc', 'affordable_prices_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
+      </div>
+      <div class="box">
+        <div class="box-icon"><i class="fas fa-shield-alt"></i></div>
+        <h4>{{ t.get('trusted_riders', 'trusted_riders') }}</h4>
+        <p>{{ t.get('trusted_riders_desc', 'trusted_riders_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR SERVICES -->
+  <section class="services">
+    <h3>{{ t.get('our_services', 'our_services') }}</h3>
+    <p>{{ t.get('services_subtitle', 'services_subtitle') }}</p>
+    <div class="service-boxes">
+      <div class="service">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="{{ t.get('passenger_transport', 'passenger_transport') }}">
+        <h4>{{ t.get('passenger_transport', 'passenger_transport') }}</h4>
+        <p>{{ t.get('passenger_transport_desc', 'passenger_transport_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
+      </div>
+      <div class="service">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}" alt="{{ t.get('delivery_service', 'delivery_service') }}">
+        <h4>{{ t.get('delivery_service', 'delivery_service') }}</h4>
+        <p>{{ t.get('delivery_service_desc', 'delivery_service_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('send_package', 'send_package') }}</a>
+      </div>
+      <div class="service">
+        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}" alt="{{ t.get('emergency_ride', 'emergency_ride') }}">
+        <h4>{{ t.get('emergency_ride', 'emergency_ride') }}</h4>
+        <p>{{ t.get('emergency_ride_desc', 'emergency_ride_desc') }}</p>
+        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('request_now', 'request_now') }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM FLOW -->
+  <section class="how-it-works">
+    <h3>{{ t.get('how_it_works', 'how_it_works') }}</h3>
+    <p>{{ t.get('how_it_works_desc', 'how_it_works_desc') }}</p>
+    <div class="steps">
+      <div class="step">
+        <div class="icon">1</div>
+        <h4>{{ t.get('registration', 'registration') }}</h4>
+        <p>{{ t.get('registration_desc', 'registration_desc') }}</p>
+        <a href="{{ url_for('register') }}" class="btn-primary">{{ t.get('register_now', 'register_now') }}</a>
+      </div>
+      <div class="step">
+        <div class="icon">2</div>
+        <h4>{{ t.get('verification', 'verification') }}</h4>
+        <p>{{ t.get('verification_desc', 'verification_desc') }}</p>
+      </div>
+      <div class="step">
+        <div class="icon">3</div>
+        <h4>{{ t.get('login', 'login') }}</h4>
+        <p>{{ t.get('login_desc', 'login_desc') }}</p>
+        <a href="{{ url_for('login') }}" class="btn-primary">{{ t.get('login_now', 'login_now') }}</a>
+      </div>
+      <div class="step">
+        <div class="icon">4</div>
+        <h4>{{ t.get('dashboard', 'dashboard') }}</h4>
+        <p>{{ t.get('dashboard_desc', 'dashboard_desc') }}</p>
+      </div>
+      <div class="step">
+        <div class="icon">5</div>
+        <h4>{{ t.get('ride_matching', 'ride_matching') }}</h4>
+        <p>{{ t.get('ride_matching_desc', 'ride_matching_desc') }}</p>
+      </div>
+      <div class="step">
+        <div class="icon">6</div>
+        <h4>{{ t.get('start_ride', 'start_ride') }}</h4>
+        <p>{{ t.get('start_ride_desc', 'start_ride_desc') }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="contact">
+    <div class="footer-container">
+      <div class="footer-box">
+        <h3>{{ t.get('services', 'services') }}</h3>
+        <ul>
+          <li><a href="#">{{ t.get('passenger_transport', 'passenger_transport') }}</a></li>
+          <li><a href="#">{{ t.get('delivery_service', 'delivery_service') }}</a></li>
+          <li><a href="#">{{ t.get('emergency_ride', 'emergency_ride') }}</a></li>
+        </ul>
+      </div>
+      <div class="footer-box">
+        <h3>{{ t.get('contact', 'contact') }}</h3>
+        <p><i class="fas fa-map-marker-alt"></i> {{ t.get('location', 'location') }}</p>
+        <p><i class="fas fa-phone"></i> {{ t.get('phone', 'phone') }}</p>
+        <p><i class="fas fa-envelope"></i> {{ t.get('email', 'email') }}</p>
+        <div class="socials">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>{{ t.get('copyright', 'copyright') }}</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile hamburger toggle
+    (function() {
+      var menuToggle = document.getElementById('menuToggle');
+      var mainNav = document.getElementById('mainNav');
+
+      if (menuToggle && mainNav) {
+        menuToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          mainNav.classList.toggle('active');
+          var icon = menuToggle.querySelector('i');
+          if (mainNav.classList.contains('active')) {
+            icon.className = 'fas fa-times';
+          } else {
+            icon.className = 'fas fa-bars';
+          }
+        });
+
+        // Close menu when clicking a link
+        var links = mainNav.querySelectorAll('a');
+        for (var i = 0; i < links.length; i++) {
+          links[i].addEventListener('click', function() {
+            mainNav.classList.remove('active');
+            menuToggle.querySelector('i').className = 'fas fa-bars';
+          });
+        }
+
+        // Close on resize to desktop
+        window.addEventListener('resize', function() {
+          if (window.innerWidth > 767) {
+            mainNav.classList.remove('active');
+            menuToggle.querySelector('i').className = 'fas fa-bars';
+          }
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Email Verification</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#f5f5f5;
+}
+
+.box{
+    background:white;
+    width:400px;
+    padding:40px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h2{
+    margin-bottom:20px;
+    color:#333;
+}
+
+p{
+    color:#666;
+    margin-bottom:25px;
+}
+
+a{
+    display:inline-block;
+    padding:12px 20px;
+    background:orange;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+}
+
+a:hover{
+    background:#e65c00;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Email Verification</h2>
+
+<p>{{ message }}</p>
+
+<a href="{{ url_for('login') }}">
+Go to Login
+</a>
+
+</div>
+
+</body>
+</html>

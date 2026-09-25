@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Driver Dashboard
+</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+.header{
+    width:100%;
+    background:#111827;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:white;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+    color:orange;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.header-right a{
+    color:white;
+    text-decoration:none;
+}
+
+.dashboard{
+    width:100%;
+    display:flex;
+    gap:20px;
+    padding:20px;
+    flex-wrap:wrap;
+}
+
+.left{
+    flex:1;
+    min-width:320px;
+}
+
+.right{
+    flex:2;
+    min-width:320px;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    margin-bottom:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.profile{
+    text-align:left;
+}
+.profile label{
+    font-weight:bold;
+    display:block;
+    text-align:left;
+    font-weight:bold;
+    margin-bottom:5px;
+    color:#333;
+}
+.profile h2{
+    margin-bottom:8px;
+    text-align:left;
+}
+
+.profile img{
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid orange;
+    margin-bottom:15px;
+}
+
+.profile h2{
+    margin-bottom:8px;
+}
+
+.profile p{
+    color:#666;
+}
+
+.status{
+    margin-top:15px;
+    padding:12px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.approved{
+    background:#e8fff1;
+    color:#00994d;
+}
+
+#map{
+    width:100%;
+    height:500px;
+    border-radius:18px;
+}
+
+.request-box{
+    border:1px solid #eee;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+    background:#fafafa;
+}
+
+.request-item{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.accept-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:orange;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+.accept-btn:hover{
+    background:#e69500;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+    margin-top:20px;
+}
+
+.stat-card{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.stat-card i{
+    font-size:35px;
+    color:orange;
+    margin-bottom:12px;
+}
+.reject-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#ef4444;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.reject-btn:hover{
+    background:#dc2626;
+}
+
+@media(max-width:768px){
+
+    .dashboard{
+        flex-direction:column;
+    }
+
+}
+.profile-image{
+    position:relative;
+    width:110px;
+    height:110px;
+    margin-bottom:15px;
+}
+
+.profile-image img{
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid orange;
+}
+
+.online-dot{
+    width:18px;
+    height:18px;
+    background:#22c55e;
+    border-radius:50%;
+    position:absolute;
+    bottom:8px;
+    right:8px;
+    border:3px solid white;
+    z-index:999;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="logo">
+        GerayoSoft Driver
+    </div>
+
+    <div class="header-right">
+
+        <span>
+
+            {{ t.get('greeting_welcome', 'greeting_welcome') }},
+
+            <strong>
+                {{ user.full_name }}
+            </strong>
+
+        </span>
+
+        <a href="{{ url_for('logout') }}">
+
+            <i class="fas fa-sign-out-alt"></i>
+
+            {{ t.get('btn_logout', 'btn_logout') }}
+
+        </a>
+
+    </div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div class="dashboard">
+
+    <!-- LEFT -->
+
+    <div class="left">
+
+        <!-- PROFILE -->
+
+        <div class="card profile">
+
+<div class="profile-image">
+
+    <img src="{{ url_for('uploads', name=user.photo.replace('uploads/', '')) if user.photo else default_avatar }}" alt="Profile photo">
+
+    {% if user.online_status == 'Online' %}
+
+        <div class="online-dot"></div>
+
+    {% endif %}
+
+</div>
+            <h2>
+                {{ user.full_name }}
+            </h2>
+
+            <p>
+                {{ user.email }}
+            </p>
+
+            <p>
+                {{ user.phone }}
+            </p>
+
+            <div class="status approved">
+
+                Verification:
+                {{ document_status }}
+                
+
+            </div>
+            <div><button
+            onclick="toggleProfileForm()"
+            class="accept-btn"
+            style="margin-top:20px;">
+
+             <i class="fas fa-user-edit"></i>
+
+                {{ t.get('btn_update_profile', 'btn_update_profile') }}
+
+                </button></div>
+                <div id="profileForm"
+style="display:none; margin-top:20px;">
+
+    <form
+    action=""
+    method="POST"
+    enctype="multipart/form-data">
+
+        <div class="request-item"
+        style="display:block; margin-bottom:15px;">
+        <h2 >{{ t.get('heading_update_profile', 'heading_update_profile') }}</h2>
+
+            <label>
+               {{ t.get('form_update_name', 'form_update_name') }}
+            </label>
+
+            <input
+            type="text"
+            name="update_name"
+            value="{{ user.full_name }}"
+            required
+            style="
+            width:100%;
+            padding:12px;
+            margin-top:5px;
+            border:1px solid #ccc;
+            border-radius:10px;">
+
+        </div>
+
+        <div class="request-item"
+        style="display:block; margin-bottom:15px;">
+
+            <label>
+                {{ t.get('form_update_phone', 'form_update_phone') }}
+            </label>
+
+            <input
+            type="text"
+            name="update_phone"
+            value="{{ user.phone }}"
+            required
+            style="
+            width:100%;
+            padding:12px;
+            margin-top:5px;
+            border:1px solid #ccc;
+            border-radius:10px;">
+
+        </div>
+
+        <div class="request-item"
+        style="display:block; margin-bottom:15px;">
+
+            <label>
+                {{ t.get('form_profile_photo', 'form_profile_photo') }}
+            </label>
+
+            <input
+            type="file"
+            name="profile_photo"
+            style="
+            width:100%;
+            padding:10px;
+            margin-top:5px;">
+
+        </div>
+
+        <button
+        type="submit"
+        name="update_profile"
+        class="accept-btn">
+
+            <i class="fas fa-save"></i>
+
+            {{ t.get('btn_save_changes', 'btn_save_changes') }}
+
+        </button>
+
+    </form>
+
+</div>
+            
+
+        </div>
+
+        <!-- REQUESTS -->
+
+        <div class="card">
+
+            <h2 style="margin-bottom:20px;">
+                {{ t.get('heading_incoming_rides', 'heading_incoming_rides') }}
+            </h2>
+            <div id="requests-container">
+                </div>
+                </div>
+
+            </div>
+            
+
+           
+    <!-- RIGHT -->
+
+    <div class="right">
+
+        <!-- MAP -->
+
+        <div class="card">
+
+            <h2 style="margin-bottom:20px;">
+                {{ t.get('heading_live_map', 'heading_live_map') }}
+            </h2>
+
+            <div id="map"></div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <i class="fas fa-road"></i>
+
+                <h2>120</h2>
+
+                <p>Total Trips</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <i class="fas fa-money-bill-wave"></i>
+
+                <h2>250K</h2>
+
+                <p>Total Earnings</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <i class="fas fa-star"></i>
+
+                <h2>4.9</h2>
+
+                <p>Driver Rating</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- LEAFLET -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// MAP
+
+var map =
+L.map('map')
+.setView([-1.9441,30.0619],13);
+
+// TILE
+
+L.tileLayer(
+
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+{
+    attribution:'© OpenStreetMap'
+}
+
+).addTo(map);
+
+// LOCATION
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+    let lat =
+    position.coords.latitude;
+
+    let lng =
+    position.coords.longitude;
+
+    map.setView([lat,lng],15);
+
+    L.marker([lat,lng])
+    .addTo(map)
+    .bindPopup("You are here")
+    .openPopup();
+
+   
+
+
+},
+
+function(){
+
+    alert(
+    "Location access denied."
+    );
+
+}
+
+);
+
+// OFFLINE WHEN PAGE CLOSED
+
+window.addEventListener(
+
+"beforeunload",
+
+function(){
+
+    navigator.sendBeacon(
+
+    "{{ url_for('driver_dashboard') }}",
+
+    new URLSearchParams({
+
+        driver_status:"Offline"
+
+    })
+
+    );
+
+}
+
+);
+function loadrequests(){
+
+    fetch("{{ url_for('fetch_requests') }}")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("requests-container").innerHTML = data;
+    });
+
+}
+loadrequests(); // Initial load of requests
+setInterval(loadrequests, 5000); // Refresh requests every 5 seconds
+
+function toggleProfileForm(){
+    const form = document.getElementById("profileForm");
+    if(form.style.display === "none"){
+        form.style.display = "block";
+    }else{
+        form.style.display = "none";
+    }
+}
+navigator.geolocation.watchPosition(
+
+function(position){
+
+    let lat = position.coords.latitude;
+    let lng = position.coords.longitude;
+
+    fetch("{{ url_for('driver_location') }}", {
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/x-www-form-urlencoded"
+        },
+
+        body:
+        "lat=" + lat +
+        "&lng=" + lng
+
+    });
+
+},
+
+function(error){
+
+    console.log(error);
+
+},
+
+{
+    enableHighAccuracy:true,
+    maximumAge:0,
+    timeout:5000
+}
+
+);
+
+</script>
+
+</body>
+</html>

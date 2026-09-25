@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Driver Verification</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(to right,#232526,#414345);
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:750px;
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.top{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.top i{
+    font-size:60px;
+    color:orange;
+    margin-bottom:15px;
+}
+
+.top h2{
+    color:#111;
+    margin-bottom:10px;
+}
+
+.top p{
+    color:#666;
+}
+
+.message{
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.status-box{
+    background:#fff7e6;
+    border-left:5px solid orange;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:25px;
+}
+
+.form-group{
+    margin-bottom:22px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:10px;
+    font-weight:bold;
+    color:#333;
+}
+
+.form-group input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    outline:none;
+    transition:0.3s;
+}
+
+.form-group input:focus{
+    border-color:orange;
+    box-shadow:0 0 5px rgba(255,165,0,0.3);
+}
+
+.upload-box{
+    border:2px dashed #ddd;
+    border-radius:15px;
+    padding:25px;
+    text-align:center;
+    background:#fafafa;
+    transition:0.3s;
+}
+
+.upload-box:hover{
+    border-color:orange;
+    background:#fffaf2;
+}
+
+.upload-box i{
+    font-size:40px;
+    color:orange;
+    margin-bottom:10px;
+}
+
+.upload-box p{
+    margin-bottom:10px;
+    color:#666;
+}
+
+.btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    background:orange;
+    color:white;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#e69500;
+}
+
+.logout{
+    text-align:center;
+    margin-top:20px;
+}
+
+.logout a{
+    color:orange;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+@media(max-width:768px){
+
+    .container{
+        padding:25px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top">
+
+        <i class="fas fa-id-card"></i>
+
+        <h2>{{ t.get('driver_verification', 'driver_verification') }} </h2>
+
+        <p>
+            {{ t.get('submit_documents_text', 'submit_documents_text') }}
+        </p>
+
+    </div>
+
+    {% if message %}<div class="message">{{ message|safe }}</div>{% endif %}
+
+    <div class="status-box">
+
+        <strong>{{ t.get('verification_status', 'verification_status') }}:</strong>
+
+        {{ status }}
+
+    </div>
+
+    <form method="POST"
+    enctype="multipart/form-data">
+
+        <!-- FRONT ID -->
+
+        <div class="form-group">
+
+            <label>
+                {{ t.get('national_id_front', 'national_id_front') }}
+            </label>
+
+            <div class="upload-box">
+
+                <i class="fas fa-image"></i>
+
+                <p>
+                    {{ t.get('upload_front_id', 'upload_front_id') }}
+                </p>
+
+                <input type="file"
+                name="id_front"
+                required>
+
+            </div>
+
+        </div>
+
+        <!-- BACK ID -->
+
+        <div class="form-group">
+
+            <label>
+                {{ t.get('national_id_back', 'national_id_back') }}
+            </label>
+
+            <div class="upload-box">
+
+                <i class="fas fa-image"></i>
+
+                <p>
+                    {{ t.get('upload_back_id', 'upload_back_id') }}
+                </p>
+
+                <input type="file"
+                name="id_back"
+                required>
+
+            </div>
+
+        </div>
+
+        <!-- LICENSE -->
+
+        <div class="form-group">
+
+            <label>
+                {{ t.get('permit_license', 'permit_license') }}
+            </label>
+
+            <div class="upload-box">
+
+                <i class="fas fa-id-badge"></i>
+
+                <p>
+                    {{ t.get('upload_permit_license', 'upload_permit_license') }}
+                </p>
+
+                <input type="file"
+                name="permit_license"
+                required>
+
+            </div>
+
+        </div>
+
+        <!-- PLATE PHOTO -->
+
+        <div class="form-group">
+
+            <label>
+                {{ t.get('plate_photo', 'plate_photo') }}
+            </label>
+
+            <div class="upload-box">
+
+                <i class="fas fa-motorcycle"></i>
+
+                <p>
+                    {{ t.get('upload_plate_photo', 'upload_plate_photo') }}
+                </p>
+
+                <input type="file"
+                name="plate_photo"
+                required>
+
+            </div>
+
+        </div>
+
+        <!-- PLATE NUMBER -->
+
+        <div class="form-group">
+
+            <label>
+                {{ t.get('plate_number', 'plate_number') }}
+            </label>
+
+            <input type="text"
+            name="plate_number"
+            placeholder="{{ t.get('enter_plate_number', 'enter_plate_number') }}"
+            required>
+
+        </div>
+
+        <button type="submit"
+        name="submit_documents"
+        class="btn">
+
+            <i class="fas fa-upload"></i>
+
+            {{ t.get('submit_documents', 'submit_documents') }}
+
+        </button>
+
+    </form>
+
+    <div class="logout">
+
+        <a href="{{ url_for('logout') }}">
+
+            {{ t.get('logout', 'logout') }}
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

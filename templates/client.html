@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>{{ t.get('client_hero_title', 'client_hero_title') }} - GerayoRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_bust }}">
+<style>
+/* ============================================
+   GERAYORIDE CLIENT - COMPLETE STYLES
+   Modern, Responsive, Clean Design
+   ============================================ */
+
+:root {
+  --primary: #ff6600;
+  --primary-dark: #e65c00;
+  --secondary: #111111;
+  --accent: #ffcc00;
+  --light: #f5f7fb;
+  --white: #ffffff;
+  --text: #222222;
+  --text-muted: #666666;
+  --text-light: #888888;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 5px 20px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --transition: all 0.3s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+  background: var(--light);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-dark {
+  background: var(--secondary);
+  color: var(--white);
+}
+.btn-dark:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-lg {
+  padding: 16px 36px;
+  font-size: 17px;
+}
+
+/* ---- Navbar ---- */
+.client-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  box-shadow: var(--shadow-sm);
+  z-index: 9999;
+}
+
+.client-navbar .logo h1 {
+  font-size: 28px;
+  color: var(--secondary);
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.client-navbar .logo span {
+  color: var(--primary);
+}
+
+.client-navbar .back-link {
+  color: var(--secondary);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.client-navbar .back-link:hover {
+  background: rgba(255,102,0,0.1);
+  color: var(--primary);
+}
+
+/* ---- Hero ---- */
+.client-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 100px 50px 60px;
+  background: linear-gradient(135deg, #fff8dc 0%, #ffffff 50%, #f5f7fb 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.client-hero h1 {
+  font-size: 48px;
+  color: var(--secondary);
+  margin-bottom: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.client-hero p {
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin-bottom: 36px;
+  line-height: 1.8;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Image Slider */
+.hero-slider {
+  width: 100%;
+  max-width: 500px;
+  height: 320px;
+  margin-top: 40px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.slides {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.slide {
+  min-width: 100%;
+  height: 100%;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 28px;
+  border-radius: 5px;
+}
+
+/* ---- Quick Features ---- */
+.quick {
+  padding: 100px 50px;
+  text-align: center;
+  background: var(--white);
+}
+
+.quick h2 {
+  font-size: 38px;
+  margin-bottom: 50px;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--light);
+  padding: 40px 30px;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  background: var(--white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.card-icon {
+  width: 55px;
+  height: 55px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 18px;
+}
+
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.card p {
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* ---- Preview Section ---- */
+.preview {
+  padding: 100px 50px;
+  text-align: center;
+  background: var(--light);
+}
+
+.preview h2 {
+  font-size: 38px;
+  margin-bottom: 12px;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.preview > p {
+  color: var(--text-muted);
+  font-size: 17px;
+  margin-bottom: 40px;
+}
+
+.preview-box {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,102,0,0.05) 0%, rgba(255,204,0,0.05) 100%);
+  pointer-events: none;
+}
+
+.preview-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.preview-route span {
+  background: var(--light);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-route i {
+  color: var(--primary);
+}
+
+.preview-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--secondary);
+  color: var(--white);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.preview-lock i {
+  color: var(--accent);
+}
+
+/* ---- Auth CTA ---- */
+.auth {
+  padding: 100px 50px;
+  text-align: center;
+  background: var(--secondary);
+  color: var(--white);
+}
+
+.auth h2 {
+  font-size: 36px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.auth p {
+  color: #aaa;
+  margin-bottom: 32px;
+  font-size: 17px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---- Footer ---- */
+.client-footer {
+  text-align: center;
+  padding: 24px;
+  background: #0a0a0a;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* ---- Loading Overlay ---- */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.95);
+  z-index: 10000;
+  transition: opacity 0.3s ease;
+}
+
+.loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(0,0,0,0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   RESPONSIVE - MOBILE
+   ============================================ */
+
+@media (max-width: 900px) {
+  .client-hero h1 {
+    font-size: 38px;
+  }
+  .hero-slider {
+    max-width: 400px;
+    height: 260px;
+  }
+}
+
+@media (max-width: 767px) {
+  .client-navbar {
+    padding: 0 20px;
+  }
+  .client-navbar .logo h1 {
+    font-size: 24px;
+  }
+  .client-navbar .back-link span {
+    display: none;
+  }
+
+  .client-hero {
+    padding: 90px 20px 50px;
+  }
+  .client-hero h1 {
+    font-size: 30px;
+  }
+  .client-hero p {
+    font-size: 16px;
+  }
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-buttons .btn {
+    width: 100%;
+  }
+  .hero-slider {
+    max-width: 100%;
+    height: 220px;
+    margin-top: 30px;
+  }
+
+  .quick,
+  .preview,
+  .auth {
+    padding: 70px 20px;
+  }
+  .quick h2,
+  .preview h2,
+  .auth h2 {
+    font-size: 28px;
+  }
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .card {
+    padding: 30px 24px;
+  }
+
+  .preview-box {
+    padding: 30px 20px;
+  }
+  .preview-route {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .preview-route span {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .auth-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  .auth-buttons .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-hero h1 {
+    font-size: 26px;
+  }
+  .quick h2,
+  .preview h2,
+  .auth h2 {
+    font-size: 24px;
+  }
+  .btn-lg {
+    padding: 14px 28px;
+    font-size: 15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOADING -->
+<div id="page-loader" class="loading-overlay">
+  <div class="spinner"></div>
+</div>
+
+<!-- NAVBAR -->
+<header class="client-navbar">
+  <a href="{{ url_for('index') }}" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    <span>{{ t.get('nav_home', 'nav_home') }}</span>
+  </a>
+  <div class="logo">
+    <h1>Gerayo<span>Ride</span></h1>
+  </div>
+  <div style="width: 80px;"></div>
+</header>
+
+<!-- HERO -->
+<section class="client-hero">
+  <h1>{{ t.get('client_hero_title', 'client_hero_title') }}</h1>
+  <p>{{ t.get('client_hero_description', 'client_hero_description') }}</p>
+
+  <div class="hero-buttons">
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">{{ t.get('login', 'login') }}</a>
+    <a href="{{ url_for('register') }}" class="btn btn-dark btn-lg">{{ t.get('btn_register', 'btn_register') }}</a>
+  </div>
+
+  <!-- Image Slider -->
+  <div class="hero-slider">
+    <div class="slides">
+      <div class="slide"><img src="{{ url_for('static', filename='image.png') }}" alt="GerayoRide"></div>
+      <div class="slide"><img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}" alt="Ride"></div>
+      <div class="slide"><img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}" alt="Delivery"></div>
+      <div class="slide"><img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}" alt="Emergency"></div>
+      <div class="slide"><img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}" alt="Service"></div>
+    </div>
+    <div class="slider-dots">
+      <span class="dot active" data-slide="0"></span>
+      <span class="dot" data-slide="1"></span>
+      <span class="dot" data-slide="2"></span>
+      <span class="dot" data-slide="3"></span>
+      <span class="dot" data-slide="4"></span>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK FEATURES -->
+<section class="quick">
+  <h2>{{ t.get('client_why_choose', 'client_why_choose') }}</h2>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-bolt"></i></div>
+      <h3>{{ t.get('client_fast_booking', 'client_fast_booking') }}</h3>
+      <p>{{ t.get('client_fast_booking_desc', 'client_fast_booking_desc') }}</p>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-map-marker-alt"></i></div>
+      <h3>{{ t.get('client_nearby_riders', 'client_nearby_riders') }}</h3>
+      <p>{{ t.get('client_nearby_riders_desc', 'client_nearby_riders_desc') }}</p>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-tags"></i></div>
+      <h3>{{ t.get('client_affordable', 'client_affordable') }}</h3>
+      <p>{{ t.get('client_affordable_desc', 'client_affordable_desc') }}</p>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+      <h3>{{ t.get('client_safe_rides', 'client_safe_rides') }}</h3>
+      <p>{{ t.get('client_safe_rides_desc', 'client_safe_rides_desc') }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- PREVIEW SECTION -->
+<section class="preview">
+  <h2>{{ t.get('client_preview_title', 'client_preview_title') }}</h2>
+  <p>{{ t.get('client_preview_locked', 'client_preview_locked') }}</p>
+
+  <div class="preview-box">
+    <div class="preview-route">
+      <span><i class="fas fa-circle" style="color:var(--primary)"></i> {{ t.get('ride_pickup_location', 'ride_pickup_location') }}</span>
+      <i class="fas fa-arrow-right" style="color:var(--text-muted)"></i>
+      <span><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> {{ t.get('ride_destination', 'ride_destination') }}</span>
+      <i class="fas fa-arrow-right" style="color:var(--text-muted)"></i>
+      <span><i class="fas fa-motorcycle" style="color:var(--primary)"></i> {{ t.get('book_ride', 'book_ride') }}</span>
+    </div>
+    <div class="preview-lock">
+      <i class="fas fa-lock"></i> {{ t.get('client_preview_locked', 'client_preview_locked') }} - {{ t.get('login', 'login') }} {{ t.get('btn_register', 'btn_register') }}
+    </div>
+  </div>
+</section>
+
+<!-- AUTH CTA -->
+<section class="auth">
+
+
+
+  <div class="auth-buttons">
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">{{ t.get('login', 'login') }}</a>
+    <a href="{{ url_for('register') }}" class="btn btn-dark btn-lg">{{ t.get('btn_register', 'btn_register') }}</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="client-footer">
+  {{ t.get('footer_client_copyright', 'footer_client_copyright') }}
+</footer>
+
+<script>
+// Image Slider with Dots
+(function() {
+  var slides = document.querySelector('.slides');
+  var dots = document.querySelectorAll('.dot');
+  var totalSlides = document.querySelectorAll('.slide').length;
+  var index = 0;
+  var interval;
+
+  function goToSlide(n) {
+    index = n;
+    if (index >= totalSlides) index = 0;
+    if (index < 0) index = totalSlides - 1;
+    slides.style.transform = 'translateX(-' + (index * 100) + '%)';
+
+    dots.forEach(function(dot, i) {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  function nextSlide() {
+    goToSlide(index + 1);
+  }
+
+  // Auto slide
+  interval = setInterval(nextSlide, 3000);
+
+  // Dot clicks
+  dots.forEach(function(dot, i) {
+    dot.addEventListener('click', function() {
+      clearInterval(interval);
+      goToSlide(i);
+      interval = setInterval(nextSlide, 3000);
+    });
+  });
+})();
+
+// Hide Page Loader
+function hidePageLoader() {
+  var loader = document.getElementById('page-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+  }
+}
+
+if (document.readyState === 'complete') {
+  hidePageLoader();
+} else {
+  window.addEventListener('load', hidePageLoader);
+}
+</script>
+
+</body>
+</html>
