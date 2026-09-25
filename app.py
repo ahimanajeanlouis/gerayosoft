@@ -5,6 +5,7 @@ import smtplib
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from functools import wraps
+import pymysql
 
 import bcrypt
 from dotenv import load_dotenv
@@ -667,3 +668,31 @@ if __name__ == "__main__":
         port=int(os.getenv("PORT", "5000")),
         debug=os.getenv("FLASK_DEBUG", "1") == "1",
     )
+
+
+@app.route("/db-test")
+def db_test():
+    try:
+        connection = pymysql.connect(
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME"),
+            port=int(os.getenv("DB_PORT", "3306")),
+            connect_timeout=10
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT 1")
+        result = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        if result and result[0] == 1:
+            return "✅ DATABASE CONNECTED SUCCESSFULLY!"
+
+        return "❌ Database responded, but test failed."
+
+    except Exception as e:
+        return f"❌ DATABASE CONNECTION FAILED: {str(e)}", 500
