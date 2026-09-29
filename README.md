@@ -36,17 +36,7 @@ Then create the tables using `database/schema.sql` in your MySQL/MariaDB databas
 
 ## 3. Email verification and password reset
 
-Set SMTP values in `.env` if you want real verification and reset emails:
-
-```text
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_FROM=your-email@gmail.com
-```
-
-The PHP source contained a hard-coded SMTP password. It was deliberately not copied into the Python project. Put credentials only in `.env`.
+This version does not use SMTP or an external email service. Registration is auto-verified locally, and password reset uses an in-app token flow without sending emails.
 
 ## 4. Admin
 

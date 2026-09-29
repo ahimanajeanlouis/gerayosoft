@@ -1,9 +1,7 @@
 import os
 import json
 import secrets
-import smtplib
 from datetime import datetime, timedelta
-from email.message import EmailMessage
 from functools import wraps
 import pymysql
 
@@ -19,8 +17,18 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DB_URL = "sqlite:///" + os.path.join(BASE_DIR, "gerayoride.db")
-DB_URL = os.getenv("DATABASE_URL") or DEFAULT_DB_URL
-engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
+DB_URL = (os.getenv("DATABASE_URL") or "").strip() or DEFAULT_DB_URL
+
+try:
+    engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+except Exception:
+    if DB_URL != DEFAULT_DB_URL:
+        DB_URL = DEFAULT_DB_URL
+        engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
+    else:
+        raise
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "change-this-secret-key")
@@ -197,73 +205,6 @@ def save_upload(file_obj, prefix="file"):
     return f"uploads/{filename}"
 
 
-def send_email(to, subject, body, html=False):
-    host = os.getenv("SMTP_HOST")
-    user = os.getenv("SMTP_USER")
-    password = os.getenv("SMTP_PASSWORD")
-    missing = [
-        name for name, value in (
-            ("SMTP_HOST", host),
-            ("SMTP_USER", user),
-            ("SMTP_PASSWORD", password),
-        ) if not value
-    ]
-    if missing:
-        app.logger.error("SMTP configuration is missing: %s", ", ".join(missing))
-        return False
-    try:
-        msg = EmailMessage()
-        msg["From"] = os.getenv("SMTP_FROM", user)
-        msg["To"] = to
-        msg["Subject"] = subject
-        if html:
-            msg.set_content("Please open this message in an HTML-capable email client.")
-            msg.add_alternative(body, subtype="html")
-        else:
-            msg.set_content(body)
-        with smtplib.SMTP(host, int(os.getenv("SMTP_PORT", "587")), timeout=10) as smtp:
-            smtp.starttls()
-            smtp.login(user, password)
-            smtp.send_message(msg)
-        return True
-    except smtplib.SMTPAuthenticationError as exc:
-        app.logger.error("SMTP authentication failed (status %s)", exc.smtp_code)
-        return False
-    except smtplib.SMTPResponseException as exc:
-        app.logger.error("SMTP server rejected the email (status %s)", exc.smtp_code)
-        return False
-    except Exception as exc:
-        app.logger.error("SMTP delivery failed (%s)", type(exc).__name__)
-        return False
-
-
-def action_email_html(eyebrow, title, greeting, message, button_label, link, expiry):
-        return f"""<!doctype html>
-<html lang="en">
-    <body style="margin:0;background:#f3f5f7;color:#1f2933;font-family:Arial,Helvetica,sans-serif;">
-        <div style="padding:32px 16px;">
-            <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e3e8ed;border-radius:12px;overflow:hidden;">
-                <div style="padding:24px 32px;background:#18232d;color:#ffffff;">
-                    <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#ffad73;">GerayoSoft</div>
-                    <div style="margin-top:8px;font-size:13px;color:#d8e0e7;">{eyebrow}</div>
-                </div>
-                <div style="padding:32px;">
-                    <h1 style="margin:0 0 20px;color:#18232d;font-size:26px;line-height:1.25;">{title}</h1>
-                    <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">{greeting}</p>
-                    <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:#52606d;">{message}</p>
-                    <p style="margin:0 0 28px;text-align:center;">
-                        <a href="{link}" style="display:inline-block;padding:14px 24px;background:#f26b21;border-radius:8px;color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none;">{button_label}</a>
-                    </p>
-                    <p style="margin:0 0 12px;font-size:13px;line-height:1.6;color:#7b8794;">{expiry}</p>
-                    <p style="margin:0;font-size:12px;line-height:1.6;color:#9aa5b1;word-break:break-all;">If the button does not work, copy and paste this link into your browser:<br>{link}</p>
-                </div>
-                <div style="padding:18px 32px;background:#f8fafb;border-top:1px solid #e3e8ed;color:#7b8794;font-size:12px;line-height:1.5;">This is an automated message from GerayoSoft. Please do not reply.</div>
-            </div>
-        </div>
-    </body>
-</html>"""
-
-
 # ---------------- PUBLIC PAGES ----------------
 
 @app.route("/")
@@ -297,8 +238,6 @@ def login():
             message = tmsg("email_not_found") if "email_not_found" in translations()[1] else "Email not found."
         elif not bcrypt.checkpw(password.encode(), user["password"].encode()):
             message = "Wrong password."
-        elif not user["email_verified"]:
-            message = "Please verify your email first."
         else:
             session.update(
                 user_id=user["id"],
@@ -338,38 +277,18 @@ def register():
             token = secrets.token_urlsafe(32)
             expires = datetime.utcnow() + timedelta(hours=24)
             hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-            db("""INSERT INTO users(full_name,email,phone,account_type,password,verification_token,token_expires)
-                   VALUES(:n,:e,:p,:a,:pw,:tok,:exp)""",
+            db("""INSERT INTO users(full_name,email,phone,account_type,password,verification_token,token_expires,email_verified)
+                   VALUES(:n,:e,:p,:a,:pw,:tok,:exp,1)""",
                {"n": name, "e": email, "p": phone, "a": account_type,
                 "pw": hashed, "tok": token, "exp": expires}, commit=True)
 
-            link = url_for("verify", token=token, _external=True)
-            subject = tmsg("verify_email_subject")
-            body = action_email_html(
-                "Account verification",
-                "Verify your email address",
-                f"Hello {name},",
-                "Thanks for joining GerayoSoft. Confirm your email address to activate your account and continue.",
-                "Verify email address",
-                link,
-                "This link expires in 24 hours.",
-            )
-            send_email(email, subject, body, html=True)
-            return render_template("verify.html", message=tmsg("registration_success") if "registration_success" in translations()[1] else "Registration successful. Please check your email for the verification link.")
+            return render_template("verify.html", message="Registration successful. Your account is active. Please log in.")
     return render_template("register.html", message=message)
 
 
 @app.route("/verify")
 def verify():
-    token = request.args.get("token", "")
-    user = db("""SELECT id FROM users
-                 WHERE verification_token=:token AND token_expires>:now AND email_verified=0""",
-              {"token": token, "now": datetime.utcnow()}, one=True)
-    if user:
-        db("UPDATE users SET email_verified=1 WHERE id=:id", {"id": user["id"]}, commit=True)
-        message = "Email verified successfully."
-    else:
-        message = "Invalid or expired verification link."
+    message = "Account verification is disabled on this system."
     return render_template("verify.html", message=message)
 
 
@@ -639,28 +558,8 @@ def forgot_password():
             db("DELETE FROM password_resets WHERE user_id=:id", {"id": user["id"]}, commit=True)
             db("INSERT INTO password_resets(user_id,token,expires_at) VALUES(:id,:token,:expires)",
                {"id": user["id"], "token": token, "expires": expires}, commit=True)
-            link = url_for("reset_password", token=token, _external=True)
-            sent = send_email(
-                email,
-                "Reset your GerayoSoft password",
-                action_email_html(
-                    "Password security",
-                    "Reset your password",
-                    "We received a request to reset your GerayoSoft password.",
-                    "Use the button below to choose a new password. If you did not make this request, you can safely ignore this email.",
-                    "Reset password",
-                    link,
-                    "This link expires in 1 hour and can only be used once.",
-                ),
-                html=True,
-            )
-            message = (
-                "A reset link has been sent to your email."
-                if sent
-                else "The reset link could not be sent. Check the SMTP settings and try again."
-            )
-        else:
-            message = "If that email exists, a reset link has been sent."
+            return redirect(url_for("reset_password", token=token))
+        message = "If that email exists, you can continue with the reset flow."
     return render_template("forgot_password.html", message=message)
 
 
