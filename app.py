@@ -201,7 +201,15 @@ def send_email(to, subject, body, html=False):
     host = os.getenv("SMTP_HOST")
     user = os.getenv("SMTP_USER")
     password = os.getenv("SMTP_PASSWORD")
-    if not host or not user or not password:
+    missing = [
+        name for name, value in (
+            ("SMTP_HOST", host),
+            ("SMTP_USER", user),
+            ("SMTP_PASSWORD", password),
+        ) if not value
+    ]
+    if missing:
+        app.logger.error("SMTP configuration is missing: %s", ", ".join(missing))
         return False
     try:
         msg = EmailMessage()
@@ -213,12 +221,19 @@ def send_email(to, subject, body, html=False):
             msg.add_alternative(body, subtype="html")
         else:
             msg.set_content(body)
-        with smtplib.SMTP(host, int(os.getenv("SMTP_PORT", "587"))) as smtp:
+        with smtplib.SMTP(host, int(os.getenv("SMTP_PORT", "587")), timeout=10) as smtp:
             smtp.starttls()
             smtp.login(user, password)
             smtp.send_message(msg)
         return True
-    except Exception:
+    except smtplib.SMTPAuthenticationError as exc:
+        app.logger.error("SMTP authentication failed (status %s)", exc.smtp_code)
+        return False
+    except smtplib.SMTPResponseException as exc:
+        app.logger.error("SMTP server rejected the email (status %s)", exc.smtp_code)
+        return False
+    except Exception as exc:
+        app.logger.error("SMTP delivery failed (%s)", type(exc).__name__)
         return False
 
 
