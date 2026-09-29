@@ -42,7 +42,6 @@ def db(sql, params=None, one=False, commit=False):
 
 
 def init_db():
-    # The project can run immediately with SQLite. For MySQL/MariaDB, use schema.sql.
     if DB_URL.startswith("sqlite"):
         with engine.begin() as c:
             c.exec_driver_sql("""CREATE TABLE IF NOT EXISTS users(
@@ -91,6 +90,58 @@ def init_db():
                 expires_at DATETIME NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )""")
+    elif DB_URL.startswith(("mysql://", "mysql+")):
+        with engine.begin() as c:
+            c.exec_driver_sql("""CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                full_name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) NOT NULL UNIQUE,
+                phone VARCHAR(20) NOT NULL,
+                account_type ENUM('Client','Driver') NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                verification_token VARCHAR(255),
+                token_expires DATETIME,
+                email_verified TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                photo VARCHAR(255),
+                latitude DECIMAL(10,8),
+                longitude DECIMAL(11,8),
+                online_status VARCHAR(20) DEFAULT 'Offline'
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
+            c.exec_driver_sql("""CREATE TABLE IF NOT EXISTS driver_documents (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                national_id_front VARCHAR(255),
+                national_id_back VARCHAR(255),
+                permit_license VARCHAR(255),
+                plate_photo VARCHAR(255),
+                plate_number VARCHAR(100),
+                status VARCHAR(50) DEFAULT 'Pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
+            c.exec_driver_sql("""CREATE TABLE IF NOT EXISTS requests (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                client_id INT NOT NULL,
+                driver_id INT NULL,
+                pickup VARCHAR(255) NOT NULL,
+                destination VARCHAR(255) NOT NULL,
+                ride_type VARCHAR(100) NOT NULL,
+                distance_km DECIMAL(10,2) NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                status VARCHAR(50) DEFAULT 'Pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(client_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(driver_id) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
+            c.exec_driver_sql("""CREATE TABLE IF NOT EXISTS password_resets (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                token VARCHAR(255) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
 
 
 init_db()
