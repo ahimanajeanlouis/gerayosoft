@@ -644,6 +644,17 @@ button {
   color: #9aa3a5;
 }
 
+.location-attribution {
+  display: block;
+  margin: 6px 0 0 26px;
+  color: var(--gray);
+  font-size: 10px;
+}
+
+.location-attribution a {
+  color: var(--green-dark);
+}
+
 .route-line {
   display: none;
 }

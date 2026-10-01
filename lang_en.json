@@ -16,6 +16,7 @@
   "home_average_rating": "Average rating",
   "home_detecting": "Detecting your location...",
   "home_current_location": "Current location",
+  "home_location_attribution": "Place names from",
   "home_location_unavailable": "Location unavailable",
   "home_manual_pickup": "Enter pickup location",
   "home_live_pickup": "Pickup",

@@ -167,11 +167,16 @@
                   placeholder="{{ t.get('home_pickup_placeholder', 'Enter pickup point') }}"
                   data-location-unavailable="{{ t.get('home_location_unavailable', 'Location unavailable') }}"
                   data-manual-pickup="{{ t.get('home_manual_pickup', 'Enter pickup location') }}"
+                  data-detecting-location="{{ t.get('home_detecting', 'Detecting your location...') }}"
                   data-current-location="{{ t.get('home_current_location', 'Current location') }}"
                   maxlength="255"
                   required
                 />
               </div>
+              <small class="location-attribution">
+                {{ t.get('home_location_attribution', 'Place names from') }}
+                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
+              </small>
             </div>
 
             <div class="route-line"></div>
@@ -494,20 +499,61 @@
         return;
       }
 
-      pickupInput.value = "Detecting your location...";
+      pickupInput.placeholder = pickupInput.dataset.detectingLocation;
       if (pickupLabel) pickupLabel.textContent = "Detecting...";
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
+          if (pickupInput.value.trim()) {
+            return;
+          }
+
           const { latitude, longitude } = position.coords;
-          const locationText = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
-          pickupInput.value = locationText;
-          if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.currentLocation;
+          const reverseGeocodeUrl = new URL("https://nominatim.openstreetmap.org/reverse");
+          reverseGeocodeUrl.search = new URLSearchParams({
+            format: "jsonv2",
+            lat: latitude,
+            lon: longitude,
+            zoom: "18",
+            addressdetails: "1"
+          });
+
+          try {
+            const response = await fetch(reverseGeocodeUrl, {
+              headers: { Accept: "application/json" }
+            });
+            if (!response.ok) throw new Error("Location lookup failed");
+
+            const result = await response.json();
+            const address = result.address || {};
+            const placeName = address.neighbourhood
+              || address.suburb
+              || address.city_district
+              || address.quarter
+              || address.village
+              || address.town
+              || address.city
+              || address.county
+              || result.name;
+
+            if (!placeName || pickupInput.value.trim()) {
+              throw new Error("Place name unavailable");
+            }
+
+            pickupInput.value = placeName;
+            if (pickupLabel) pickupLabel.textContent = placeName;
+          } catch {
+            if (!pickupInput.value.trim()) {
+              pickupInput.placeholder = pickupInput.dataset.manualPickup;
+              if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.locationUnavailable;
+            }
+          }
         },
         () => {
-          pickupInput.value = "";
-          pickupInput.placeholder = pickupInput.dataset.manualPickup;
-          if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.locationUnavailable;
+          if (!pickupInput.value.trim()) {
+            pickupInput.placeholder = pickupInput.dataset.manualPickup;
+            if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.locationUnavailable;
+          }
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
