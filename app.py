@@ -430,7 +430,19 @@ def request_ride():
            VALUES(:client,:pickup,:destination,:ride_type,:distance,:price,'Pending')""",
        {"client": session["user_id"], "pickup": pickup, "destination": destination,
         "ride_type": ride_type, "distance": distance, "price": price}, commit=True)
-    return redirect(url_for("client_dashboard"))
+    ride = db("SELECT id FROM requests WHERE client_id=:id ORDER BY id DESC LIMIT 1",
+              {"id": session["user_id"]}, one=True)
+    return redirect(url_for("ride_confirmation", ride_id=ride["id"]))
+
+
+@app.route("/client/ride-status/<int:ride_id>")
+@login_required("Client")
+def ride_confirmation(ride_id):
+    ride = db("SELECT * FROM requests WHERE id=:ride_id AND client_id=:client_id",
+              {"ride_id": ride_id, "client_id": session["user_id"]}, one=True)
+    if not ride:
+        return redirect(url_for("client_dashboard"))
+    return render_template("ride_confirmation.html", ride=ride)
 
 
 @app.route("/client/request-driver", methods=["POST"])
