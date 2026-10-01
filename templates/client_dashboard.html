@@ -34,10 +34,16 @@ body{
     width:100%;
     background:#111;
     color:white;
-    padding:15px 30px;
+    min-height:68px;
+    padding:12px 24px;
     display:flex;
     justify-content:space-between;
     align-items:center;
+    gap:16px;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 4px 16px rgba(0,0,0,0.16);
 }
 
 .logo{
@@ -55,6 +61,23 @@ body{
 .user-area a{
     color:white;
     text-decoration:none;
+}
+
+.logout-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:40px;
+    padding:8px 12px;
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:8px;
+    transition:background 0.2s ease, border-color 0.2s ease;
+}
+
+.logout-link:hover{
+    background:rgba(255,255,255,0.1);
+    border-color:rgba(255,255,255,0.42);
 }
 
 /* DASHBOARD */
@@ -216,11 +239,59 @@ body{
 
     .dashboard{
         flex-direction:column;
+        padding:14px;
+        gap:14px;
     }
 
     .header{
-        flex-direction:column;
-        gap:10px;
+        min-height:60px;
+        flex-direction:row;
+        padding:8px 14px;
+        gap:8px;
+    }
+
+    .logo{
+        font-size:21px;
+        white-space:nowrap;
+    }
+
+    .user-area{
+        gap:6px;
+        flex-shrink:0;
+    }
+
+    .user-area > span{
+        display:none;
+    }
+
+    .user-area .language-switch{
+        gap:2px;
+        padding:2px;
+        border-color:rgba(255,255,255,0.25);
+    }
+
+    .user-area .language-switch a{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-width:36px;
+        min-height:36px;
+        padding:4px;
+        font-size:11px;
+    }
+
+    .logout-link{
+        width:40px;
+        min-width:40px;
+        height:40px;
+        min-height:40px;
+        padding:0;
+        border-color:transparent;
+        background:rgba(255,255,255,0.1);
+    }
+
+    .logout-link span{
+        display:none;
     }
 
 }
@@ -384,9 +455,9 @@ body{
             </strong>
         </span>
 
-        <a href="{{ url_for('logout') }}" >
+        <a href="{{ url_for('logout') }}" class="logout-link" aria-label="{{ t.get('btn_logout', 'Log out') }}" title="{{ t.get('btn_logout', 'Log out') }}">
             <i class="fas fa-sign-out-alt"></i>
-            {{ t.get('btn_logout', 'btn_logout') }}
+            <span>{{ t.get('btn_logout', 'btn_logout') }}</span>
         </a>
 
     </div>
