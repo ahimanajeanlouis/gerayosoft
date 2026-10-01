@@ -71,6 +71,74 @@ body{
     margin-bottom:20px;
 }
 
+.password-requirements{
+    margin: -8px 0 20px;
+    color: #b42318;
+    font-size: 13px;
+}
+
+.password-requirements h3{
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.password-requirements ul{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    list-style: none;
+}
+
+.password-requirements li{
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.password-requirements li::before{
+    content: "✕";
+    font-weight: bold;
+}
+
+.password-requirements li.valid{
+    color: #16803c;
+}
+
+.password-requirements li.valid::before{
+    content: "✓";
+}
+
+.register-form .password-match{
+    min-height:16px;
+    margin:-8px 0 16px;
+    text-align:left;
+    color:#b42318;
+    font-size:13px;
+}
+
+.register-form .password-match.valid{
+    color:#16803c;
+}
+
+.register-form .phone-digit-error{
+    min-height:16px;
+    margin:-8px 0 20px;
+    text-align:left;
+    color:#b42318;
+    font-size:13px;
+}
+
+.register-form .phone-digit-error.valid{
+    color:#16803c;
+}
+
+@media (max-width: 420px){
+    .password-requirements ul{
+        grid-template-columns: 1fr;
+    }
+}
+
 .input-box .left-icon{
     position:absolute;
     top:50%;
@@ -119,6 +187,11 @@ body{
     background:#e65c00;
 }
 
+.register-btn:disabled{
+    background:#b8b8b8;
+    cursor:not-allowed;
+}
+
 .login-link{
     text-align:center;
     margin-top:20px;
@@ -135,6 +208,7 @@ body{
 </head>
 
 <body>
+{% with floating = true %}{% include '_language_switch.html' %}{% endwith %}
 
 <div class="register-form">
 
@@ -152,7 +226,7 @@ body{
 
 {% if message %}<div class="message">{{ message|safe }}</div>{% endif %}
 
-<form method="POST">
+<form method="POST" id="registerForm">
 
 <div class="input-box">
 
@@ -180,12 +254,23 @@ required>
 
 <i class="fas fa-phone left-icon"></i>
 
-<input type="text"
+<input type="tel"
 name="phone"
+id="phone"
 placeholder="{{ t.get('phone_number', 'phone_number') }}"
+inputmode="tel"
+autocomplete="tel"
+pattern="0[ .()-]*(?:72|73|78|79)(?:[ .()-]*[0-9]){7}"
+maxlength="25"
+title="{{ t.get('invalid_phone', 'Enter a valid phone number.') }}"
 required>
 
 </div>
+
+<p class="phone-digit-error" id="phoneDigitError" aria-live="polite"
+    data-local-message="{{ t.get('phone_max_digits_local', 'A local phone number can contain at most 10 digits.') }}"
+    data-local-incomplete="{{ t.get('phone_incomplete_local', 'Enter all 10 digits for a local number.') }}"
+    data-invalid-message="{{ t.get('invalid_phone', 'Enter a valid phone number.') }}"></p>
 
 <div class="input-box">
 
@@ -231,6 +316,18 @@ onclick="togglePassword('password', this)">
 
 </div>
 
+<div class="password-requirements" aria-live="polite">
+<h3>{{ t.get('password_requirements_title', 'Password requirements') }}</h3>
+<ul>
+<li data-password-rule="min-length">{{ t.get('password_rule_min_length', 'At least 8 characters') }}</li>
+<li data-password-rule="uppercase">{{ t.get('password_rule_uppercase', 'One uppercase letter (A-Z)') }}</li>
+<li data-password-rule="lowercase">{{ t.get('password_rule_lowercase', 'One lowercase letter (a-z)') }}</li>
+<li data-password-rule="number">{{ t.get('password_rule_number', 'One number (0-9)') }}</li>
+<li data-password-rule="special">{{ t.get('password_rule_special', 'One special character (!, @, #, etc.)') }}</li>
+<li data-password-rule="max-length">{{ t.get('password_rule_max_length', 'Maximum 64 characters') }}</li>
+</ul>
+</div>
+
 <div class="input-box">
 
 <i class="fas fa-lock left-icon"></i>
@@ -247,9 +344,15 @@ onclick="togglePassword('confirmPassword', this)">
 
 </div>
 
+<p class="password-match" id="passwordMatch" aria-live="polite"
+    data-match="{{ t.get('passwords_match', 'Passwords match') }}"
+    data-mismatch="{{ t.get('passwords_do_not_match', 'Passwords do not match') }}"></p>
+
 <button type="submit"
 name="register"
-class="register-btn">
+class="register-btn"
+id="registerButton"
+disabled>
 
 {{ t.get('create_account_btn', 'create_account_btn') }}
 
@@ -296,6 +399,137 @@ function togglePassword(id, icon){
     }
 
 }
+
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+const phoneInput = document.getElementById("phone");
+const phoneDigitError = document.getElementById("phoneDigitError");
+const registrationForm = document.getElementById("registerForm");
+const registerButton = document.getElementById("registerButton");
+const passwordMatchMessage = document.getElementById("passwordMatch");
+const passwordRules = {
+    "min-length": (password) => [...password].length >= 8,
+    uppercase: (password) => /[A-Z]/.test(password),
+    lowercase: (password) => /[a-z]/.test(password),
+    number: (password) => /[0-9]/.test(password),
+    special: (password) => /[^A-Za-z0-9\s]/.test(password),
+    "max-length": (password) => [...password].length <= 64
+};
+
+function updatePasswordRequirements(){
+    const password = passwordInput.value;
+    let passwordIsValid = true;
+
+    document.querySelectorAll("[data-password-rule]").forEach((item) => {
+        const isValid = passwordRules[item.dataset.passwordRule](password);
+        item.classList.toggle("valid", isValid);
+        passwordIsValid = passwordIsValid && isValid;
+    });
+
+    passwordInput.dataset.valid = String(passwordIsValid);
+    const passwordsMatch = password.length > 0 && password === confirmPasswordInput.value;
+    passwordMatchMessage.textContent = confirmPasswordInput.value
+        ? (passwordsMatch ? passwordMatchMessage.dataset.match : passwordMatchMessage.dataset.mismatch)
+        : "";
+    passwordMatchMessage.classList.toggle("valid", passwordsMatch);
+    updateRegistrationButton();
+}
+
+function updateRegistrationButton(){
+    const passwordsMatch = passwordInput.value.length > 0
+        && passwordInput.value === confirmPasswordInput.value;
+    registerButton.disabled = passwordInput.dataset.valid !== "true"
+        || !passwordsMatch
+        || !phoneInput.validity.valid;
+}
+
+function validatePhoneDigitLimit(limitBlocked = false){
+    const normalizedPhone = phoneInput.value.replace(/[ .()-]/g, "");
+    const digits = normalizedPhone.replace(/\D/g, "");
+    const maximumDigits = 10;
+    const exceedsLimit = digits.length > maximumDigits;
+    const allowedPrefixes = ["072", "073", "078", "079"];
+    const prefixIsPossible = normalizedPhone.length === 0 || allowedPrefixes.some((prefix) =>
+        prefix.startsWith(normalizedPhone)
+        || (normalizedPhone.startsWith(prefix) && /^[0-9]+$/.test(normalizedPhone))
+    );
+    const invalidPrefix = !prefixIsPossible;
+    const localFormat = /^0(?:72|73|78|79)\d{7}$/.test(normalizedPhone);
+    let validationMessage = "";
+    let statusMessage = "";
+    let numberIsComplete = false;
+
+    if (phoneInput.value) {
+        if (invalidPrefix) {
+            validationMessage = phoneDigitError.dataset.invalidMessage;
+            statusMessage = validationMessage;
+        } else if (exceedsLimit) {
+            validationMessage = phoneDigitError.dataset.localMessage;
+            statusMessage = validationMessage;
+        } else if (digits.length < maximumDigits) {
+            validationMessage = phoneDigitError.dataset.localIncomplete;
+            statusMessage = validationMessage;
+        } else if (!localFormat) {
+            validationMessage = phoneDigitError.dataset.invalidMessage;
+            statusMessage = validationMessage;
+        } else {
+            numberIsComplete = true;
+            if (limitBlocked) {
+                statusMessage = phoneDigitError.dataset.localMessage;
+            }
+        }
+    }
+
+    phoneInput.setCustomValidity(validationMessage);
+    phoneDigitError.textContent = statusMessage;
+    phoneDigitError.classList.toggle("valid", numberIsComplete && limitBlocked);
+    updateRegistrationButton();
+}
+
+passwordInput.addEventListener("input", updatePasswordRequirements);
+confirmPasswordInput.addEventListener("input", updatePasswordRequirements);
+phoneInput.addEventListener("beforeinput", (event) => {
+    if (!event.inputType.startsWith("insert")) return;
+
+    const insertedText = event.data ?? event.dataTransfer?.getData("text/plain") ?? "";
+    const start = phoneInput.selectionStart ?? phoneInput.value.length;
+    const end = phoneInput.selectionEnd ?? start;
+    const nextValue = phoneInput.value.slice(0, start) + insertedText + phoneInput.value.slice(end);
+    const nextNormalized = nextValue.replace(/[ .()-]/g, "");
+    const nextDigits = nextNormalized.replace(/\D/g, "").length;
+    const nextMaximum = 10;
+
+    if (nextDigits > nextMaximum) {
+        event.preventDefault();
+        validatePhoneDigitLimit(true);
+    }
+});
+phoneInput.addEventListener("input", () => {
+    const normalizedPhone = phoneInput.value.replace(/[ .()-]/g, "");
+    const maximumDigits = 10;
+    const digitCount = normalizedPhone.replace(/\D/g, "").length;
+
+    if (digitCount > maximumDigits) {
+        let keptDigits = 0;
+        phoneInput.value = phoneInput.value
+            .replace(/[0-9]/g, (digit) => (++keptDigits <= maximumDigits ? digit : ""))
+            .replace(/[ .()-]+$/, "");
+        validatePhoneDigitLimit(true);
+        return;
+    }
+
+    validatePhoneDigitLimit();
+});
+validatePhoneDigitLimit();
+registrationForm.addEventListener("submit", (event) => {
+    updatePasswordRequirements();
+    if (registerButton.disabled) {
+        event.preventDefault();
+        passwordInput.focus();
+    }
+});
+
+updatePasswordRequirements();
 
 </script>
 

@@ -2,296 +2,524 @@
 <html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>{{ t.get('welcome_message', 'welcome_message') }} - GerayoSoft</title>
-  <meta name="description" content="{{ t.get('description', 'description') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Cache bust with timestamp -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_bust }}">
-  <style>
-    /* EMERGENCY INLINE FIXES - These load first and cannot be cached */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    /* Force hide mobile nav until toggled */
-    @media (max-width: 767px) {
-      #mainNav { display: none !important; }
-      #mainNav.active { display: block !important; }
-    }
+  <title>Gerayosoft | Fast Motorcycle Transportation</title>
+  <meta
+    name="description"
+    content="Book fast and affordable motorcycle transportation with Gerayosoft."
+  />
 
-    /* Remove ALL bullets everywhere */
-    ul, li { list-style: none !important; }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-    /* Navbar fix */
-    .navbar { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 70px; 
-      background: #ffcc00; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      padding: 0 20px; 
-      z-index: 9999; 
-    }
-
-    .logo h1 { font-size: 28px; color: #111; }
-    .logo span { color: #ff6600; }
-
-    /* Hamburger */
-    #menuToggle { 
-      display: none; 
-      background: none; 
-      border: none; 
-      font-size: 24px; 
-      cursor: pointer; 
-      color: #111; 
-    }
-
-    @media (max-width: 767px) {
-      #menuToggle { display: block !important; }
-    }
-
-    /* Desktop nav */
-    #mainNav ul { 
-      display: flex; 
-      align-items: center; 
-      gap: 10px; 
-      list-style: none; 
-    }
-
-    #mainNav ul li { list-style: none; }
-
-    #mainNav ul li a { 
-      text-decoration: none; 
-      color: #222; 
-      font-weight: 600; 
-      padding: 8px 14px; 
-      border-radius: 8px; 
-    }
-
-    .btn-primary { 
-      background: #ff6600; 
-      color: white !important; 
-      padding: 10px 22px !important; 
-      border-radius: 30px !important; 
-    }
-
-    .btn-dark { 
-      background: #111; 
-      color: white !important; 
-      padding: 10px 22px !important; 
-      border-radius: 30px !important; 
-    }
-  </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_bust }}" />
 </head>
-
 <body>
 
-  <!-- NAVBAR -->
-  <header class="navbar">
-    <div class="logo">
-      <h1>Gerayo<span>Soft</span></h1>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="{{ url_for('index') }}" class="logo">
+        <span class="logo-icon">G</span>
+        Gerayosoft
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        ☰
+      </button>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="home">{{ t.get('home_nav_home', 'Home') }}</a>
+        <a href="services">{{ t.get('home_nav_services', 'Services') }}</a>
+        <a href="how-it-works">{{ t.get('home_nav_how', 'How it works') }}</a>
+        <a href="safety">{{ t.get('home_nav_safety', 'Safety') }}</a>
+        <a href="contact">{{ t.get('home_nav_help', 'Help') }}</a>
+        {% include '_language_switch.html' %}
+        <a href="{{ url_for('login') }}" class="login-link">{{ t.get('home_nav_login', 'Log in') }}</a>
+        <a href="#booking" class="nav-button">{{ t.get('home_nav_book', 'Book a ride') }}</a>
+      </nav>
     </div>
-
-    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <nav id="mainNav">
-      <ul>
-        <li><a href="{{ url_for('index') }}">{{ t.get('nav_home', 'nav_home') }}</a></li>
-        <li><a href="{{ url_for('driver') }}">{{ t.get('nav_drivers', 'nav_drivers') }}</a></li>
-        <li><a href="{{ url_for('client') }}">{{ t.get('nav_clients', 'nav_clients') }}</a></li>
-        <li><a href="#contact">{{ t.get('nav_contact', 'nav_contact') }}</a></li>
-        <li><a href="{{ url_for('register') }}" class="btn-primary">{{ t.get('nav_signup', 'nav_signup') }}</a></li>
-        <li><a href="{{ url_for('login') }}" class="btn-dark">{{ t.get('nav_login', 'nav_login') }}</a></li>
-        <li>
-          <select class="lang-select" onchange="location = this.value">
-            <option value="?lang=en" {% if lang == 'en' %}selected{% endif %}>English</option>
-            <option value="?lang=rw" {% if lang == 'rw' %}selected{% endif %}>Kinyarwanda</option>
-          </select>
-        </li>
-      </ul>
-    </nav>
   </header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-text">
-      <h2>{{ t.get('welcome_message', 'welcome_message') }}</h2>
-      <p>{{ t.get('description', 'description') }}</p>
-      <div class="hero-buttons">
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
-        <a href="{{ url_for('driver') }}" class="btn-dark">{{ t.get('become_rider', 'become_rider') }}</a>
-      </div>
-    </div>
-    <div class="hero-image">
-      <img src="{{ url_for('static', filename='image.png') }}" alt="GerayoSoft">
-    </div>
-  </section>
+  <main>
 
-  <!-- FEATURES -->
-  <section class="features">
-    <h3>{{ t.get('why_choose_us', 'why_choose_us') }}</h3>
-    <p>{{ t.get('subtitle_features', 'subtitle_features') }}</p>
-    <div class="feature-boxes">
-      <div class="box">
-        <div class="box-icon"><i class="fas fa-bolt"></i></div>
-        <h4>{{ t.get('fast_pickup', 'fast_pickup') }}</h4>
-        <p>{{ t.get('fast_pickup_desc', 'fast_pickup_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
-      </div>
-      <div class="box">
-        <div class="box-icon"><i class="fas fa-tags"></i></div>
-        <h4>{{ t.get('affordable_prices', 'affordable_prices') }}</h4>
-        <p>{{ t.get('affordable_prices_desc', 'affordable_prices_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
-      </div>
-      <div class="box">
-        <div class="box-icon"><i class="fas fa-shield-alt"></i></div>
-        <h4>{{ t.get('trusted_riders', 'trusted_riders') }}</h4>
-        <p>{{ t.get('trusted_riders_desc', 'trusted_riders_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
-      </div>
-    </div>
-  </section>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="eyebrow">
+            <span class="status-dot"></span>
+            {{ t.get('home_status', 'Safe rides are now available') }}
+          </div>
 
-  <!-- OUR SERVICES -->
-  <section class="services">
-    <h3>{{ t.get('our_services', 'our_services') }}</h3>
-    <p>{{ t.get('services_subtitle', 'services_subtitle') }}</p>
-    <div class="service-boxes">
-      <div class="service">
-        <img src="{{ url_for('static', filename='image.png') }}" alt="{{ t.get('passenger_transport', 'passenger_transport') }}">
-        <h4>{{ t.get('passenger_transport', 'passenger_transport') }}</h4>
-        <p>{{ t.get('passenger_transport_desc', 'passenger_transport_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('book_ride', 'book_ride') }}</a>
-      </div>
-      <div class="service">
-        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123819.png') }}" alt="{{ t.get('delivery_service', 'delivery_service') }}">
-        <h4>{{ t.get('delivery_service', 'delivery_service') }}</h4>
-        <p>{{ t.get('delivery_service_desc', 'delivery_service_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('send_package', 'send_package') }}</a>
-      </div>
-      <div class="service">
-        <img src="{{ url_for('static', filename='Screenshot 2026-05-14 123644.png') }}" alt="{{ t.get('emergency_ride', 'emergency_ride') }}">
-        <h4>{{ t.get('emergency_ride', 'emergency_ride') }}</h4>
-        <p>{{ t.get('emergency_ride_desc', 'emergency_ride_desc') }}</p>
-        <a href="{{ url_for('client') }}" class="btn-primary">{{ t.get('request_now', 'request_now') }}</a>
-      </div>
-    </div>
-  </section>
+          <h1>
+            {{ t.get('home_title_prefix', 'Move faster with') }}
+            <span>Gerayosoft.</span>
+          </h1>
 
-  <!-- PLATFORM FLOW -->
-  <section class="how-it-works">
-    <h3>{{ t.get('how_it_works', 'how_it_works') }}</h3>
-    <p>{{ t.get('how_it_works_desc', 'how_it_works_desc') }}</p>
-    <div class="steps">
-      <div class="step">
-        <div class="icon">1</div>
-        <h4>{{ t.get('registration', 'registration') }}</h4>
-        <p>{{ t.get('registration_desc', 'registration_desc') }}</p>
-        <a href="{{ url_for('register') }}" class="btn-primary">{{ t.get('register_now', 'register_now') }}</a>
-      </div>
-      <div class="step">
-        <div class="icon">2</div>
-        <h4>{{ t.get('verification', 'verification') }}</h4>
-        <p>{{ t.get('verification_desc', 'verification_desc') }}</p>
-      </div>
-      <div class="step">
-        <div class="icon">3</div>
-        <h4>{{ t.get('login', 'login') }}</h4>
-        <p>{{ t.get('login_desc', 'login_desc') }}</p>
-        <a href="{{ url_for('login') }}" class="btn-primary">{{ t.get('login_now', 'login_now') }}</a>
-      </div>
-      <div class="step">
-        <div class="icon">4</div>
-        <h4>{{ t.get('dashboard', 'dashboard') }}</h4>
-        <p>{{ t.get('dashboard_desc', 'dashboard_desc') }}</p>
-      </div>
-      <div class="step">
-        <div class="icon">5</div>
-        <h4>{{ t.get('ride_matching', 'ride_matching') }}</h4>
-        <p>{{ t.get('ride_matching_desc', 'ride_matching_desc') }}</p>
-      </div>
-      <div class="step">
-        <div class="icon">6</div>
-        <h4>{{ t.get('start_ride', 'start_ride') }}</h4>
-        <p>{{ t.get('start_ride_desc', 'start_ride_desc') }}</p>
-      </div>
-    </div>
-  </section>
+          <p>
+            {{ t.get('home_description', 'Book a fast, affordable motorcycle ride or send a package anywhere in the city.') }}
+          </p>
 
-  <!-- FOOTER -->
-  <footer class="footer" id="contact">
-    <div class="footer-container">
-      <div class="footer-box">
-        <h3>{{ t.get('services', 'services') }}</h3>
-        <ul>
-          <li><a href="#">{{ t.get('passenger_transport', 'passenger_transport') }}</a></li>
-          <li><a href="#">{{ t.get('delivery_service', 'delivery_service') }}</a></li>
-          <li><a href="#">{{ t.get('emergency_ride', 'emergency_ride') }}</a></li>
-        </ul>
-      </div>
-      <div class="footer-box">
-        <h3>{{ t.get('contact', 'contact') }}</h3>
-        <p><i class="fas fa-map-marker-alt"></i> {{ t.get('location', 'location') }}</p>
-        <p><i class="fas fa-phone"></i> {{ t.get('phone', 'phone') }}</p>
-        <p><i class="fas fa-envelope"></i> {{ t.get('email', 'email') }}</p>
-        <div class="socials">
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <div class="hero-actions">
+            <a href="#booking" class="primary-button">
+              {{ t.get('home_book_ride', 'Book a ride') }}
+              <span>→</span>
+            </a>
+
+            <a href="{{ url_for('register') }}" class="secondary-button">
+              {{ t.get('home_become_rider', 'Become a rider') }}
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div>
+              <strong>10k+</strong>
+              <small>{{ t.get('home_happy_clients', 'Happy clients') }}</small>
+            </div>
+
+            <div>
+              <strong>2k+</strong>
+              <small>{{ t.get('home_active_riders', 'Active riders') }}</small>
+            </div>
+
+            <div>
+              <strong>4.8</strong>
+              <small>{{ t.get('home_average_rating', 'Average rating') }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="city-line city-line-one"></div>
+          <div class="city-line city-line-two"></div>
+          <div class="sun"></div>
+
+          <div class="bike-scene">
+            <div class="street-glow"></div>
+            <div class="photo-scene">
+              <img
+                src="{{ url_for('static', filename='images/hero-motorcycle-passenger.jpg') }}"
+                alt="A passenger riding with a motorcycle taxi driver on a yellow commuter motorcycle"
+              />
+            </div>
+
+            <div class="route-phone" aria-label="Motorcycle ride route preview">
+              <div class="phone-speaker"></div>
+              <div class="phone-screen">
+                <div class="phone-heading">
+                  <span>GerayoRide</span>
+                  <strong>8 min</strong>
+                </div>
+                <div class="route-map" aria-hidden="true">
+                  <span class="map-road road-one"></span>
+                  <span class="map-road road-two"></span>
+                  <span class="map-road road-three"></span>
+                  <span class="map-route"></span>
+                  <span class="map-pin pickup-pin"></span>
+                  <span class="map-pin dropoff-pin"></span>
+                </div>
+                <div class="phone-destination">
+                  <span class="destination-dot"></span>
+                  <div>
+                    <small>Pickup</small>
+                    <strong id="pickupLabel">{{ t.get('home_detecting', 'Detecting your location...') }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </section>
+
+    <section class="booking-section" id="booking">
+      <div class="container">
+        <div class="booking-card">
+          <div class="booking-header">
+            <div>
+              <span class="section-label">{{ t.get('home_quick_booking', 'Quick booking') }}</span>
+              <h2>{{ t.get('home_where_to', 'Where do you want to go?') }}</h2>
+            </div>
+
+            <div class="booking-tabs">
+              <button type="button" class="tab-button active" data-service="ride" aria-pressed="true">
+                {{ t.get('home_motorcycle_ride', 'Motorcycle ride') }}
+              </button>
+              <button type="button" class="tab-button" data-service="delivery" aria-pressed="false">
+                {{ t.get('home_delivery', 'Delivery') }}
+              </button>
+            </div>
+          </div>
+
+          <form class="booking-form" id="bookingForm" action="{{ url_for('begin_ride') }}" method="post">
+            <div class="input-group">
+              <label for="pickup">{{ t.get('home_pickup_location', 'Pickup location') }}</label>
+              <div class="input-wrapper">
+                <span class="input-icon pickup-icon">●</span>
+                <input
+                  type="text"
+                  id="pickup"
+                  name="pickup"
+                  placeholder="{{ t.get('home_pickup_placeholder', 'Enter pickup point') }}"
+                  data-location-unavailable="{{ t.get('home_location_unavailable', 'Location unavailable') }}"
+                  data-manual-pickup="{{ t.get('home_manual_pickup', 'Enter pickup location') }}"
+                  data-current-location="{{ t.get('home_current_location', 'Current location') }}"
+                  maxlength="255"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="route-line"></div>
+
+            <div class="input-group">
+              <label for="destination">{{ t.get('home_destination', 'Destination') }}</label>
+              <div class="input-wrapper">
+                <span class="input-icon destination-icon">●</span>
+                <input
+                  type="text"
+                  id="destination"
+                  name="destination"
+                  placeholder="{{ t.get('home_destination_placeholder', 'Where are you going?') }}"
+                  maxlength="255"
+                  required
+                />
+              </div>
+            </div>
+
+            <input type="hidden" id="rideType" name="ride_type" value="Passenger Ride" />
+            <button type="submit" class="primary-button search-button">
+              <span class="button-label">{{ t.get('home_find_ride', 'Find a ride') }}</span> <span>→</span>
+            </button>
+          </form>
+
+          <p class="form-message error" id="formMessage">{{ booking_error }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="services section-padding" id="services">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+              <span class="section-label">{{ t.get('home_our_services', 'Our services') }}</span>
+              <h2>{{ t.get('home_services_title', 'Transportation made simple.') }}</h2>
+          </div>
+
+          <p>
+            {{ t.get('home_services_description', 'Whether you need a ride across town or want to deliver a package, Gerayosoft gets you there.') }}
+          </p>
+        </div>
+
+        <div class="service-grid">
+          <article class="service-card service-card-dark">
+            <div class="service-icon">⌁</div>
+            <h3>{{ t.get('home_motorcycle_rides', 'Motorcycle rides') }}</h3>
+            <p>
+              {{ t.get('home_motorcycle_rides_desc', 'Get around the city quickly with a nearby verified rider.') }}
+            </p>
+            <a href="#booking">{{ t.get('home_book_package', 'Book a ride') }} <span>↗</span></a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon orange-icon">□</div>
+            <h3>{{ t.get('home_package_delivery', 'Package delivery') }}</h3>
+            <p>
+              {{ t.get('home_package_delivery_desc', 'Send documents, food, and small packages safely and quickly.') }}
+            </p>
+            <a href="#booking">{{ t.get('home_send_package', 'Send a package') }} <span>↗</span></a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon blue-icon">◷</div>
+            <h3>{{ t.get('home_scheduled_trips', 'Scheduled trips') }}</h3>
+            <p>
+              {{ t.get('home_scheduled_trips_desc', 'Plan your transportation in advance for work, school, or events.') }}
+            </p>
+            <a href="#booking">{{ t.get('home_schedule_trip', 'Schedule a trip') }} <span>↗</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="process-section section-padding" id="how-it-works">
+      <div class="container process-grid">
+        <div class="process-image">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-top">
+                <span>9:41</span>
+                <span>● ●</span>
+              </div>
+
+              <div class="map-area">
+                <div class="map-road road-one"></div>
+                <div class="map-road road-two"></div>
+                <div class="map-road road-three"></div>
+                <div class="map-pin pin-one">●</div>
+                <div class="map-pin pin-two">●</div>
+                <div class="map-bike">⌁</div>
+              </div>
+
+              <div class="trip-panel">
+                <div class="trip-status">
+                  <span class="status-dot"></span>
+                  Rider is on the way
+                </div>
+
+                <div class="trip-details">
+                  <div class="driver-avatar">R</div>
+                  <div>
+                    <strong>Rayan M.</strong>
+                    <small>Yamaha • 4.9 ★</small>
+                  </div>
+                  <span class="call-button">☎</span>
+                </div>
+
+                <div class="arrival-time">
+                  <span>Arriving in</span>
+                  <strong>4 min</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="process-content">
+          <span class="section-label">{{ t.get('home_how_it_works', 'How it works') }}</span>
+          <h2>{{ t.get('home_journey_steps', 'Your journey starts in three simple steps.') }}</h2>
+          <p class="process-description">
+            {{ t.get('home_process_description', 'We make it easy to move around your city. Book, track, and pay without unnecessary delays.') }}
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <span class="step-number">01</span>
+              <div>
+                <h3>{{ t.get('home_step_destination', 'Enter your destination') }}</h3>
+                <p>{{ t.get('home_step_destination_desc', 'Tell us where you are and where you want to go.') }}</p>
+              </div>
+            </div>
+
+            <div class="step">
+              <span class="step-number">02</span>
+              <div>
+                <h3>{{ t.get('home_step_rider', 'Choose your rider') }}</h3>
+                <p>{{ t.get('home_step_rider_desc', 'Compare estimated prices and arrival times.') }}</p>
+              </div>
+            </div>
+
+            <div class="step">
+              <span class="step-number">03</span>
+              <div>
+                <h3>{{ t.get('home_step_track', 'Track your journey') }}</h3>
+                <p>{{ t.get('home_step_track_desc', 'Follow your ride in real time until you arrive.') }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="safety-section section-padding" id="safety">
+      <div class="container">
+        <div class="safety-card">
+          <div>
+            <span class="section-label">{{ t.get('home_ride_confidence', 'Ride with confidence') }}</span>
+            <h2>{{ t.get('home_safety_title', 'Your safety comes first.') }}</h2>
+            <p>
+              {{ t.get('home_safety_description', 'Every Gerayosoft rider is verified, and every trip is supported by real-time tracking and customer assistance.') }}
+            </p>
+          </div>
+
+          <div class="safety-features">
+            <div class="safety-feature">
+              <span>✓</span>
+              {{ t.get('home_verified_riders', 'Verified riders') }}
+            </div>
+
+            <div class="safety-feature">
+              <span>✓</span>
+              {{ t.get('home_live_tracking', 'Live trip tracking') }}
+            </div>
+
+            <div class="safety-feature">
+              <span>✓</span>
+              {{ t.get('home_secure_payments', 'Secure payments') }}
+            </div>
+
+            <div class="safety-feature">
+              <span>✓</span>
+              {{ t.get('home_customer_support', 'Customer support') }}
+            </div>
+          </div>
+
+          <a href="mailto:support@gerayosoft.com?subject=Ride%20safety%20question" class="light-button">{{ t.get('home_ask_safety', 'Ask about safety') }} <span>→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="rider-section section-padding" id="rider">
+      <div class="container rider-card">
+        <div>
+          <span class="section-label">{{ t.get('home_for_riders', 'For riders') }}</span>
+          <h2>{{ t.get('home_earn_more', 'Earn more with every journey.') }}</h2>
+          <p>
+            {{ t.get('home_rider_description', 'Join Gerayosoft, choose your schedule, and earn by transporting passengers and packages.') }}
+          </p>
+          <a href="{{ url_for('register') }}" class="primary-button">
+            {{ t.get('home_register_rider', 'Register as a rider') }} <span>→</span>
+          </a>
+        </div>
+
+        <div class="rider-card-shape">
+          <div class="mini-bike">⌁</div>
+          <span class="floating-badge badge-one">{{ t.get('home_flexible_hours', 'Flexible hours') }}</span>
+          <span class="floating-badge badge-two">{{ t.get('home_earn_weekly', 'Earn weekly') }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="download-section">
+      <div class="container download-content">
+        <div>
+          <span class="section-label">{{ t.get('home_coming_soon', 'Coming soon') }}</span>
+          <h2>{{ t.get('home_in_your_pocket', 'Gerayosoft in your pocket.') }}</h2>
+          <p>
+            {{ t.get('home_app_description', 'Book rides, track your driver, and manage your trips from anywhere.') }}
+          </p>
+        </div>
+
+        <div class="store-buttons">
+          <span class="store-button store-button-disabled" aria-disabled="true">
+            <small>Download on the</small>
+            <strong>App Store</strong>
+          </span>
+
+          <span class="store-button store-button-disabled" aria-disabled="true">
+            <small>GET IT ON</small>
+            <strong>Google Play</strong>
+          </span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-grid">
+      <div>
+        <a href="{{ url_for('index') }}" class="logo footer-logo">
+          <span class="logo-icon">G</span>
+          Gerayosoft
+        </a>
+
+        <p class="footer-description">
+          Fast, safe, and affordable motorcycle transportation for everyone.
+        </p>
+      </div>
+
+      <div class="footer-column">
+            <h4>{{ t.get('home_platform', 'Platform') }}</h4>
+        <a href="#booking">Book a ride</a>
+        <a href="#services">Our services</a>
+        <a href="#rider">Become a rider</a>
+      </div>
+
+      <div class="footer-column">
+            <h4>{{ t.get('home_company', 'Company') }}</h4>
+        <a href="{{ url_for('index') }}#how-it-works">{{ t.get('home_about', 'About us') }}</a>
+        <a href="#safety">{{ t.get('home_nav_safety', 'Safety') }}</a>
+        <a href="{{ url_for('driver') }}">{{ t.get('home_careers', 'Careers') }}</a>
+      </div>
+
+      <div class="footer-column">
+        <h4>{{ t.get('home_support', 'Support') }}</h4>
+        <a href="{{ url_for('client') }}">{{ t.get('home_help_center', 'Help center') }}</a>
+        <a href="mailto:support@gerayosoft.com">{{ t.get('home_contact_us', 'Contact us') }}</a>
+        <a href="{{ url_for('privacy') }}">{{ t.get('home_privacy', 'Privacy policy') }}</a>
+      </div>
     </div>
-    <div class="footer-bottom">
-      <p>{{ t.get('copyright', 'copyright') }}</p>
+
+    <div class="container footer-bottom">
+      <span>{{ t.get('home_copyright', '© 2026 Gerayosoft. All rights reserved.') }}</span>
+      <span>{{ t.get('home_footer_tagline', 'Made for moving forward.') }}</span>
     </div>
   </footer>
 
   <script>
-    // Mobile hamburger toggle
-    (function() {
-      var menuToggle = document.getElementById('menuToggle');
-      var mainNav = document.getElementById('mainNav');
+    const menuToggle = document.getElementById("menuToggle");
+    const navMenu = document.getElementById("navMenu");
 
-      if (menuToggle && mainNav) {
-        menuToggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          mainNav.classList.toggle('active');
-          var icon = menuToggle.querySelector('i');
-          if (mainNav.classList.contains('active')) {
-            icon.className = 'fas fa-times';
-          } else {
-            icon.className = 'fas fa-bars';
-          }
-        });
+    if (menuToggle && navMenu) {
+      menuToggle.addEventListener("click", () => {
+        navMenu.classList.toggle("show");
+      });
+    }
 
-        // Close menu when clicking a link
-        var links = mainNav.querySelectorAll('a');
-        for (var i = 0; i < links.length; i++) {
-          links[i].addEventListener('click', function() {
-            mainNav.classList.remove('active');
-            menuToggle.querySelector('i').className = 'fas fa-bars';
-          });
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const searchButton = document.querySelector(".search-button");
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach((tab) => tab.classList.remove("active"));
+        button.classList.add("active");
+        tabButtons.forEach((tab) => tab.setAttribute("aria-pressed", String(tab === button)));
+        document.getElementById("rideType").value =
+          button.dataset.service === "delivery" ? "Food Delivery" : "Passenger Ride";
+
+        if (button.dataset.service === "delivery") {
+          searchButton.querySelector(".button-label").textContent = searchButton.dataset.deliveryLabel;
+        } else {
+          searchButton.querySelector(".button-label").textContent = searchButton.dataset.rideLabel;
         }
+      });
+    });
 
-        // Close on resize to desktop
-        window.addEventListener('resize', function() {
-          if (window.innerWidth > 767) {
-            mainNav.classList.remove('active');
-            menuToggle.querySelector('i').className = 'fas fa-bars';
-          }
-        });
+    const pickupInput = document.getElementById("pickup");
+    const pickupLabel = document.getElementById("pickupLabel");
+
+    const detectLocation = () => {
+      if (!pickupInput) {
+        return;
       }
-    })();
+
+      if (!navigator.geolocation) {
+        pickupInput.value = "";
+        if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.locationUnavailable;
+        return;
+      }
+
+      pickupInput.value = "Detecting your location...";
+      if (pickupLabel) pickupLabel.textContent = "Detecting...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const locationText = `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
+          pickupInput.value = locationText;
+          if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.currentLocation;
+        },
+        () => {
+          pickupInput.value = "";
+          pickupInput.placeholder = pickupInput.dataset.manualPickup;
+          if (pickupLabel) pickupLabel.textContent = pickupInput.dataset.locationUnavailable;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    };
+
+    detectLocation();
+
+    document.querySelectorAll(".nav-menu a").forEach((link) => {
+      link.addEventListener("click", () => {
+        navMenu.classList.remove("show");
+      });
+    });
   </script>
 
 </body>

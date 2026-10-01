@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 
 <head>
 
@@ -251,6 +251,8 @@ body{
     </div>
 
     <div class="header-right">
+
+        {% include '_language_switch.html' %}
 
         <span>
 

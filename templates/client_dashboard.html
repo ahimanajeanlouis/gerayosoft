@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 <head>
 
 <meta charset="UTF-8">
@@ -375,6 +375,8 @@ body{
 
     <div class="user-area">
 
+        {% include '_language_switch.html' %}
+
         <span>
             {{ t.get('greeting_welcome', 'greeting_welcome') }},
             <strong>
@@ -511,6 +513,7 @@ body{
                <input type="text"
 name="pickup"
 id="pickup"
+value="{{ pending_booking.pickup if pending_booking else '' }}"
 placeholder="{{ t.get('placeholder_pickup', 'placeholder_pickup') }}"
 onchange="calculateRide()"
 required>
@@ -524,6 +527,7 @@ required>
                 <input type="text"
                 name="destination"
                 id="destination"
+                value="{{ pending_booking.destination if pending_booking else '' }}"
                 placeholder="{{ t.get('placeholder_destination', 'placeholder_destination') }}"
                 onchange="calculateRide()"
                 required>
@@ -540,11 +544,11 @@ required>
                         {{ t.get('form_select_service_type', 'form_select_service_type') }}
                     </option>
 
-                    <option value="Passenger Ride">
+                    <option value="Passenger Ride" {% if pending_booking and pending_booking.ride_type == 'Passenger Ride' %}selected{% endif %}>
                         {{ t.get('ride_passenger_transport', 'ride_passenger_transport') }}
                     </option>
 
-                    <option value="Food Delivery">
+                    <option value="Food Delivery" {% if pending_booking and pending_booking.ride_type == 'Food Delivery' %}selected{% endif %}>
                         {{ t.get('ride_food_delivery', 'ride_food_delivery') }}
                     </option>
 
@@ -769,25 +773,34 @@ function(){
 
 async function getCoordinates(place){
 
-    let response =
-    await fetch(
-    "https://nominatim.openstreetmap.org/search?format=json&q="
-    + encodeURIComponent(place)
-    );
+    const coordinates = place.match(/^\s*Lat\s*(-?\d+(?:\.\d+)?)\s*,\s*Lng\s*(-?\d+(?:\.\d+)?)\s*$/i);
 
-    let data =
-    await response.json();
-
-    if(data.length > 0){
-
+    if(coordinates){
         return {
-
-            lat: parseFloat(data[0].lat),
-
-            lng: parseFloat(data[0].lon)
-
+            lat: parseFloat(coordinates[1]),
+            lng: parseFloat(coordinates[2])
         };
+    }
 
+    try{
+        let response = await fetch(
+            "https://nominatim.openstreetmap.org/search?format=json&q="
+            + encodeURIComponent(place)
+        );
+        if(!response.ok){
+            return null;
+        }
+
+        let data = await response.json();
+
+        if(data.length > 0){
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon)
+            };
+        }
+    }catch(error){
+        console.error("Unable to find this location", error);
     }
 
     return null;
@@ -867,6 +880,15 @@ async function calculateRide(){
     await getCoordinates(
     destination
     );
+
+    if(!pickupData || !destinationData){
+        document.getElementById("distance").value = "";
+        document.getElementById("price").value = "";
+        document.getElementById("distance_km").value = "";
+        document.getElementById("ride_price").value = "";
+        validateRideForm();
+        return;
+    }
 
 
     // DISTANCE
@@ -986,6 +1008,11 @@ function validateRideForm(){
     }
 
 }
+
+if(document.getElementById("pickup").value && document.getElementById("destination").value){
+    calculateRide();
+}
+
 function loadRideStatus(){
 
     fetch("{{ url_for('check_ride_status') }}")

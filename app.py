@@ -1,11 +1,14 @@
 import os
 import json
+import re
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
+from urllib.parse import urlencode
 import pymysql
 
 import bcrypt
+import phonenumbers
 from dotenv import load_dotenv
 from flask import (
     Flask, render_template, request, redirect, url_for, session,
@@ -170,11 +173,22 @@ def translations():
 @app.context_processor
 def inject():
     lang, t = translations()
+    query = request.args.to_dict(flat=True)
+    query.pop("lang", None)
+    query.pop("language", None)
+    query.pop("next", None)
+    next_page = request.path
+    if query:
+        next_page += "?" + urlencode(query)
     return {
         "lang": lang,
         "t": t,
         "cache_bust": int(datetime.now().timestamp()),
         "default_avatar": DEFAULT_AVATAR,
+        "language_urls": {
+            code: url_for("set_language", language=code, next=next_page)
+            for code in ("rw", "en")
+        },
     }
 
 
@@ -212,7 +226,43 @@ def index():
     requested = request.args.get("lang")
     if requested in ("en", "rw"):
         session["lang"] = requested
-    return render_template("index.html")
+    booking_error = session.pop("booking_error", "")
+    return render_template("index.html", booking_error=booking_error)
+
+
+@app.route("/set-language")
+def set_language():
+    language = request.args.get("language")
+    if language in ("rw", "en"):
+        session["lang"] = language
+    next_page = request.args.get("next", "/")
+    if not next_page.startswith("/") or next_page.startswith("//"):
+        next_page = url_for("index")
+    return redirect(next_page)
+
+
+@app.route("/begin-ride", methods=["POST"])
+def begin_ride():
+    pickup = request.form.get("pickup", "").strip()
+    destination = request.form.get("destination", "").strip()
+    ride_type = request.form.get("ride_type", "Passenger Ride").strip()
+    if not pickup or not destination or len(pickup) > 255 or len(destination) > 255:
+        session["booking_error"] = tmsg("home_booking_error")
+        return redirect(url_for("index", _anchor="booking"))
+    if ride_type not in ("Passenger Ride", "Food Delivery"):
+        ride_type = "Passenger Ride"
+    if session.get("user_id") and session.get("role") != "Client":
+        session["booking_error"] = tmsg("home_client_account_error")
+        return redirect(url_for("index", _anchor="booking"))
+
+    session["booking_draft"] = {
+        "pickup": pickup,
+        "destination": destination,
+        "ride_type": ride_type,
+    }
+    if session.get("user_id"):
+        return redirect(url_for("client_dashboard"))
+    return redirect(url_for("login"))
 
 
 @app.route("/client")
@@ -225,6 +275,11 @@ def driver():
     return render_template("driver.html")
 
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
 # ---------------- AUTH ----------------
 
 @app.route("/login", methods=["GET", "POST"])
@@ -233,8 +288,10 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "")
-        user = db("SELECT * FROM users WHERE email=:email", {"email": email}, one=True)
-        if not user:
+        user = db("SELECT * FROM users WHERE email=:email", {"email": email}, one=True) if email and password else None
+        if not email or not password:
+            message = tmsg("login_credentials_required")
+        elif not user:
             message = tmsg("email_not_found") if "email_not_found" in translations()[1] else "Email not found."
         elif not bcrypt.checkpw(password.encode(), user["password"].encode()):
             message = "Wrong password."
@@ -247,6 +304,9 @@ def login():
             )
             if user["account_type"] == "Client":
                 return redirect(url_for("client_dashboard"))
+            if session.pop("booking_draft", None):
+                session["booking_error"] = tmsg("home_client_account_error")
+                return redirect(url_for("index", _anchor="booking"))
             doc = db("SELECT * FROM driver_documents WHERE user_id=:id", {"id": user["id"]}, one=True)
             if not doc:
                 return redirect(url_for("document_verification"))
@@ -267,7 +327,35 @@ def register():
         password = request.form.get("password", "")
         confirm = request.form.get("confirm_password", "")
 
-        if password != confirm:
+        phone_is_valid = False
+        phone_digits = re.sub(r"\D", "", phone)
+        local_phone = len(phone_digits) == 10 and phone_digits.startswith("0")
+        if (len(phone) <= 25
+                and re.fullmatch(r"[+0-9(). -]+", phone)
+                and local_phone):
+            try:
+                parsed_phone = phonenumbers.parse(phone, "RW")
+                subscriber_number = str(parsed_phone.national_number)
+                if (parsed_phone.country_code == 250
+                        and len(subscriber_number) == 9
+                        and subscriber_number.startswith(("72", "73", "78", "79"))
+                        and phonenumbers.is_valid_number(parsed_phone)):
+                    phone = phonenumbers.format_number(
+                        parsed_phone, phonenumbers.PhoneNumberFormat.E164
+                    )
+                    phone_is_valid = True
+            except phonenumbers.NumberParseException:
+                pass
+
+        if not phone_is_valid:
+            message = tmsg("invalid_phone")
+        elif (len(password) < 8 or len(password) > 64
+                or not re.search(r"[A-Z]", password)
+                or not re.search(r"[a-z]", password)
+                or not re.search(r"[0-9]", password)
+                or not re.search(r"[^A-Za-z0-9\s]", password)):
+            message = tmsg("password_requirements_error")
+        elif password != confirm:
             message = tmsg("password_not_match")
         elif account_type not in ("Client", "Driver"):
             message = "Please select a valid account type."
@@ -321,7 +409,8 @@ def client_dashboard():
 
     db("UPDATE users SET online_status='Online' WHERE id=:id", {"id": uid}, commit=True)
     user = db("SELECT * FROM users WHERE id=:id", {"id": uid}, one=True)
-    return render_template("client_dashboard.html", user=user)
+    pending_booking = session.pop("booking_draft", None)
+    return render_template("client_dashboard.html", user=user, pending_booking=pending_booking)
 
 
 @app.route("/request-ride", methods=["POST"])

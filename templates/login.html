@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
@@ -152,6 +152,7 @@ body{
 </head>
 
 <body>
+{% with floating = true %}{% include '_language_switch.html' %}{% endwith %}
 
 <div class="login-form">
 
@@ -168,7 +169,7 @@ body{
 
       <input type="email"
       name="email"
-      placeholder="Account email"
+      placeholder="{{ t.get('login_email', 'Email Address') }}"
       required>
 
     </div>
@@ -179,7 +180,7 @@ body{
 
       <input type="password"
       name="password"
-      placeholder="Password"
+      placeholder="{{ t.get('login_password', 'Password') }}"
       id="loginPassword"
       required>
 

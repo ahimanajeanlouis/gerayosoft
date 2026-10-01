@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy | Gerayosoft</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ cache_bust }}" />
+  <style>
+    body {
+      min-height: 100vh;
+      color: var(--white);
+      background: var(--dark);
+    }
+
+    .privacy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 82px;
+    }
+
+    .privacy-header a:last-child {
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .privacy-main {
+      max-width: 860px;
+      margin: 36px auto 80px;
+      padding: 42px;
+      border-radius: 16px;
+      color: #202928;
+      background: #fff;
+    }
+
+    .privacy-main h1 {
+      margin-bottom: 8px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 38px;
+    }
+
+    .privacy-main .effective-date {
+      margin-bottom: 28px;
+      color: #697370;
+      font-size: 13px;
+    }
+
+    .privacy-main section + section {
+      margin-top: 25px;
+    }
+
+    .privacy-main h2 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .privacy-main p,
+    .privacy-main li {
+      color: #4e5b57;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .privacy-main ul {
+      padding-left: 22px;
+    }
+
+    .privacy-main a {
+      color: #34752c;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .privacy-main {
+        margin: 15px auto 45px;
+        padding: 26px 20px;
+      }
+
+      .privacy-main h1 {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="privacy-header container">
+    <a href="{{ url_for('index') }}" class="logo">
+      <span class="logo-icon">G</span>
+      Gerayosoft
+    </a>
+    {% include '_language_switch.html' %}
+    <a href="{{ url_for('index') }}">Back to home</a>
+  </header>
+
+  <main class="privacy-main container">
+    <h1>Privacy policy</h1>
+    <p class="effective-date">Effective October 1, 2026</p>
+
+    <p>This policy explains how Gerayosoft handles information when you use this ride and delivery service.</p>
+
+    <section>
+      <h2>Information we collect</h2>
+      <ul>
+        <li>Account details you provide, including your name, email address, phone number, and account type. Passwords are stored as bcrypt hashes.</li>
+        <li>Pickup and destination details, ride type, distance, and ride-request status.</li>
+        <li>Driver profile photos and verification documents submitted during driver registration.</li>
+        <li>Driver location coordinates while the driver dashboard is active, when browser location permission is granted.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How information is used</h2>
+      <p>Information is used to manage accounts, match ride requests with drivers, calculate estimates, verify driver documents, and provide support. Relevant trip details are shown to drivers so they can respond to requests. Administrators can review account and verification information.</p>
+    </section>
+
+    <section>
+      <h2>Maps and location</h2>
+      <p>Your browser controls location access. You can deny or revoke permission, and enter a pickup location manually. Address lookups and map tiles use OpenStreetMap services; searches may include the location text you enter.</p>
+    </section>
+
+    <section>
+      <h2>Storage and retention</h2>
+      <p>Account, ride, and verification data are stored in the database configured for this installation. Uploaded photos and documents are stored with the application. Contact <a href="mailto:support@gerayosoft.com">support@gerayosoft.com</a> to ask about access or deletion.</p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Questions about this policy can be sent to <a href="mailto:support@gerayosoft.com">support@gerayosoft.com</a>.</p>
+    </section>
+  </main>
+</body>
+</html>

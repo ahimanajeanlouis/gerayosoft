@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -284,6 +284,7 @@ footer{
 </head>
 
 <body>
+  {% with floating = true %}{% include '_language_switch.html' %}{% endwith %}
   <div id="page-loader" class="loading-overlay">
     <div class="spinner"></div>
   </div>
