@@ -1345,6 +1345,7 @@ button {
   margin: 0 8px;
 }
 
+/* MOBILE RESPONSIVE STYLES */
 @media (max-width: 1180px) {
   .container {
     width: min(100% - 40px, 95%);
@@ -1398,24 +1399,65 @@ button {
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
+    z-index: 1000;
   }
 
   .nav-menu {
     position: fixed;
-    top: 0;
-    left: -100%;
-    width: 80%;
-    height: 100vh;
-    background: var(--white);
+    top: 90px;
+    left: 0;
+    width: 100%;
+    max-height: calc(100vh - 90px);
     flex-direction: column;
-    padding: 90px 30px 30px;
-    gap: 16px;
-    transition: left 0.3s ease;
-    z-index: 15;
+    background: var(--dark);
+    padding: 30px 20px;
+    gap: 12px;
+    overflow-y: auto;
+    display: none;
+    z-index: 999;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   }
 
   .nav-menu.show {
-    left: 0;
+    display: flex;
+  }
+
+  .nav-menu a {
+    color: rgba(255, 255, 255, 0.9);
+    display: block;
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+  }
+
+  .nav-menu a:hover,
+  .nav-menu a:active {
+    background: var(--green);
+    color: var(--dark);
+  }
+
+  .nav-menu .login-link {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-menu .login-link:hover {
+    background: var(--orange);
+    color: var(--white);
+  }
+
+  .nav-button {
+    width: 100%;
+    text-align: center;
+    background: var(--green);
+    color: var(--dark) !important;
+    padding: 14px 18px !important;
+    border-radius: 8px;
+  }
+
+  .nav-button:hover {
+    background: var(--green-dark);
   }
 
   .hero {
