@@ -1409,13 +1409,13 @@ button {
     width: 100%;
     max-height: calc(100vh - 90px);
     flex-direction: column;
-    background: var(--dark);
-    padding: 30px 20px;
-    gap: 12px;
+    background: var(--white);
+    padding: 24px 20px;
+    gap: 8px;
     overflow-y: auto;
     display: none;
     z-index: 999;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 32px rgba(16, 20, 23, 0.15);
   }
 
   .nav-menu.show {
@@ -1423,28 +1423,34 @@ button {
   }
 
   .nav-menu a {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
     display: block;
     padding: 14px 18px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 4px 0;
+    border-radius: 12px;
+    background: var(--cream);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
   }
 
   .nav-menu a:hover,
   .nav-menu a:active {
     background: var(--green);
     color: var(--dark);
+    font-weight: 600;
+    transform: translateX(4px);
   }
 
   .nav-menu .login-link {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--dark);
+    background: var(--cream);
+    border: 1px solid transparent;
   }
 
   .nav-menu .login-link:hover {
-    background: var(--orange);
-    color: var(--white);
+    background: rgba(255, 138, 61, 0.15);
+    color: var(--orange);
+    border-color: var(--orange);
   }
 
   .nav-button {
@@ -1453,11 +1459,16 @@ button {
     background: var(--green);
     color: var(--dark) !important;
     padding: 14px 18px !important;
-    border-radius: 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    margin-top: 8px;
   }
 
   .nav-button:hover {
     background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(200, 241, 105, 0.3);
   }
 
   .hero {
@@ -1529,6 +1540,16 @@ button {
     width: 32px;
     height: 32px;
     font-size: 16px;
+  }
+
+  .nav-menu {
+    padding: 20px 16px;
+    gap: 6px;
+  }
+
+  .nav-menu a {
+    padding: 12px 16px;
+    font-size: 13px;
   }
 
   .hero h1 {
