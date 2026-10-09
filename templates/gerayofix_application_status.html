@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="30">
+  <title>{{ t.get('mechanic_status_page_title', 'GerayoFix application status') }}</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:#f4f5f7;color:#171717;font-family:Arial,sans-serif}.panel{width:min(100%,620px);padding:36px;background:#fff;border-radius:20px;box-shadow:0 8px 28px #0000000c;text-align:center}.icon{display:grid;width:68px;height:68px;place-items:center;margin:0 auto 18px;border-radius:50%;background:#fff2d8;color:#a45a00;font-size:30px}.icon.rejected{background:#fff0f0;color:#b42318}h1{margin:0 0 12px;font-size:clamp(25px,5vw,34px)}p{color:#667085;line-height:1.65}.status{display:inline-block;margin:6px 0 12px;padding:7px 13px;border-radius:30px;background:#fff2d8;color:#8a4b00;font-weight:700}.status.rejected{background:#fff0f0;color:#b42318}.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}.btn{display:inline-block;padding:12px 17px;border-radius:10px;background:#ff9f1c;color:#171717;text-decoration:none;font-weight:700}.btn.secondary{border:1px solid #d0d5dd;background:white}.refresh{font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="icon{% if profile.status == 'Rejected' %} rejected{% endif %}" aria-hidden="true">{% if profile.status == 'Rejected' %}!{% else %}⌛{% endif %}</div>
+    {% if profile.status == 'Pending' %}
+      <h1>{{ t.get('mechanic_pending_title', 'Your application is under review') }}</h1>
+      <span class="status">{{ t.get('mechanic_pending_label', 'Pending approval') }}</span>
+      <p>{{ t.get('mechanic_pending_message', 'Thank you for applying to GerayoFix. An administrator must approve your mechanic profile before it appears to customers. You can stay on this page; it will check for an update automatically.') }}</p>
+      <p class="refresh">{{ t.get('mechanic_status_refresh_note', 'This page checks for approval every 30 seconds.') }}</p>
+      <div class="actions">
+        <a class="btn" href="{{ url_for('gerayofix_application_status') }}">{{ t.get('mechanic_check_status', 'Check status now') }}</a>
+        <a class="btn secondary" href="{{ url_for('logout') }}">{{ t.get('mechanic_logout', 'Log out') }}</a>
+        {% include '_language_switch.html' %}
+      </div>
+    {% else %}
+      <h1>{{ t.get('mechanic_rejected_title', 'Your application needs an update') }}</h1>
+      <span class="status rejected">{{ t.get('mechanic_rejected_label', 'Not approved') }}</span>
+      <p>{{ t.get('mechanic_rejected_message', 'Your mechanic application was not approved. Update your profile details and submit it again for administrator review.') }}</p>
+      <div class="actions">
+        <a class="btn" href="{{ url_for('gerayofix_apply') }}">{{ t.get('mechanic_update_application', 'Update application') }}</a>
+        <a class="btn secondary" href="{{ url_for('logout') }}">{{ t.get('mechanic_logout', 'Log out') }}</a>
+        {% include '_language_switch.html' %}
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>

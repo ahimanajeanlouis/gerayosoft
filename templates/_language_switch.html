@@ -1,0 +1,40 @@
+<style>
+  .language-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .language-switch a {
+    padding: 5px 8px;
+    border-radius: 5px;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .language-switch a[aria-current="page"] {
+    color: #101417;
+    background: #c8f169;
+  }
+
+  .language-switch-floating {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    z-index: 10000;
+    color: #fff;
+    background: rgba(16, 20, 23, 0.92);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+</style>
+<nav class="language-switch{% if floating|default(false) %} language-switch-floating{% endif %}" aria-label="Choose language">
+  <a href="{{ language_urls.rw }}" lang="rw" title="Kinyarwanda" aria-label="Switch to Kinyarwanda" {% if lang == 'rw' %}aria-current="page"{% endif %}>RW</a>
+  <a href="{{ language_urls.en }}" lang="en" title="English" aria-label="Switch to English" {% if lang == 'en' %}aria-current="page"{% endif %}>EN</a>
+</nav>

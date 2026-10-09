@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.get('gfix_find_title', 'GerayoFix | Find a mechanic') }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--ink:#171717;--orange:#ff9f1c;--paper:#f5f6f8;--muted:#667085}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--paper);color:var(--ink)}
+    header{background:#111;color:#fff;padding:14px max(16px,calc((100% - 1120px)/2));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    header strong{font-size:22px;color:var(--orange);white-space:nowrap}
+    .top-nav,.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .toplink{color:#fff;text-decoration:none;padding:7px 2px}
+    .wrap{max-width:1120px;margin:auto;padding:30px 18px}
+    .hero{background:linear-gradient(120deg,#181818,#333);color:#fff;border-radius:22px;padding:clamp(22px,5vw,34px);display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .hero h1{font-size:clamp(28px,5vw,42px);margin:0 0 10px}
+    .hero p{max-width:600px;color:#e3e3e3;line-height:1.6}
+    .hero i{font-size:58px;color:var(--orange)}
+    .actions{gap:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:0;border-radius:10px;padding:11px 15px;text-decoration:none;font-weight:700;cursor:pointer;background:var(--orange);color:#171717;text-align:center}
+    .btn.secondary{background:#fff}
+    .filters,.card,.empty{min-width:0;background:white;border-radius:16px;padding:20px;box-shadow:0 6px 22px #1018280c}
+    .filters{margin:22px 0;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:12px;align-items:end}
+    .field{min-width:0}
+    .field label{display:block;font-weight:700;font-size:13px;margin-bottom:7px}
+    .field input,.field select,.field textarea{width:100%;min-height:44px;padding:11px;border:1px solid #d0d5dd;border-radius:9px;font:inherit}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px}
+    .card h2{margin:10px 0 5px;font-size:21px;overflow-wrap:anywhere}
+    .card p{color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+    .tag{display:inline-block;background:#fff1d9;color:#8a4b00;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700;margin:3px 3px 3px 0}
+    .muted{color:var(--muted);font-size:14px}
+    .status{font-weight:700;color:#b45309;line-height:1.6}
+    .empty{text-align:center;padding:30px}
+    .empty i{font-size:35px;color:var(--orange)}
+    .language-switch{display:inline-flex;align-items:center}
+    @media(max-width:720px){header{align-items:flex-start}.top-nav{width:100%;gap:8px 14px}.filters{grid-template-columns:1fr}.filters .btn{width:100%}.hero{align-items:flex-start}.hero i{display:none}}
+    @media(max-width:420px){.wrap{padding:18px 12px}.top-nav{font-size:14px}.hero{border-radius:16px}.filters,.card{padding:16px}.actions .btn{flex:1 1 100%}}
+  </style>
+</head>
+<body>
+  <header>
+    <strong><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> GerayoFix</strong>
+    <nav class="top-nav" aria-label="{{ t.get('gfix_navigation', 'GerayoFix navigation') }}">
+      <a class="toplink" href="{{ url_for('client_dashboard') if session.get('role') == 'Client' else url_for('index') }}">{{ t.get('gfix_main_site', 'Main site') }}</a>
+      <a class="toplink" href="{{ url_for('gerayofix_my_requests') }}">{{ t.get('mechanic_my_requests', 'My repair requests') }}</a>
+      <a class="toplink" href="{{ url_for('gerayofix_apply') }}">{{ t.get('gfix_join_mechanic', 'Join as a mechanic') }}</a>
+      <a class="toplink" href="{{ url_for('logout') }}">{{ t.get('mechanic_logout', 'Log out') }}</a>
+      {% include '_language_switch.html' %}
+    </nav>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <h1>{{ t.get('gfix_hero_title', 'Vehicle trouble? Find help.') }}</h1>
+        <p>{{ t.get('gfix_hero_description', 'Connect with approved mechanics for workshop repairs or roadside assistance for your motorcycle or car.') }}</p>
+        <div class="actions">
+          <a class="btn" href="#find">{{ t.get('gfix_find_mechanic', 'Find a mechanic') }}</a>
+          <a class="btn secondary" href="{{ url_for('gerayofix_apply') }}">{{ t.get('gfix_register_workshop', 'Register my workshop') }}</a>
+        </div>
+      </div>
+      <i class="fa-solid fa-car-burst" aria-hidden="true"></i>
+    </section>
+    <form id="find" class="filters" method="get">
+      <div class="field">
+        <label for="area">{{ t.get('gfix_area_label', 'Area / neighbourhood') }}</label>
+        <input id="area" name="area" value="{{ area }}" placeholder="{{ t.get('gfix_area_placeholder', 'e.g. Remera, Kigali') }}">
+      </div>
+      <div class="field">
+        <label for="assistance">{{ t.get('gfix_service_needed', 'Service needed') }}</label>
+        <select id="assistance" name="assistance">
+          <option value="">{{ t.get('gfix_all_services', 'All services') }}</option>
+          <option value="Roadside" {{ 'selected' if assistance == 'Roadside' }}>{{ t.get('gfix_roadside', 'Roadside help') }}</option>
+          <option value="Workshop" {{ 'selected' if assistance == 'Workshop' }}>{{ t.get('gfix_workshop', 'Workshop repair') }}</option>
+        </select>
+      </div>
+      <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> {{ t.get('gfix_search_mechanics', 'Search mechanics') }}</button>
+      <input type="hidden" name="lat" id="lat">
+      <input type="hidden" name="lng" id="lng">
+    </form>
+    {% if own_profile %}
+      <p class="status">{{ t.get('gfix_own_application_status', 'Your mechanic application:') }} {{ t.get('gfix_status_' ~ own_profile.status|lower, own_profile.status) }}. {{ t.get('gfix_only_approved_listed', 'Only approved mechanics are listed to customers.') }}</p>
+    {% endif %}
+    <h2>{{ t.get('gfix_approved_mechanics', 'Approved mechanics') }}</h2>
+    <p class="muted">{{ t.get('gfix_filter_hint', 'Use the area filter to find local providers. Share your location only if you want distance sorting.') }}</p>
+    <div class="cards">
+      {% for m in mechanics %}
+        <article class="card">
+          <span class="tag"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> {{ t.get('gfix_approved_provider', 'Approved provider') }}</span>
+          <h2>{{ m.business_name }}</h2>
+          <p><i class="fa-solid fa-user-gear" aria-hidden="true"></i> {{ m.full_name }} · {{ m.experience_years }} {{ t.get('gfix_years_experience', "years' experience") }}</p>
+          <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ m.service_area }}{% if m.workshop_address %} · {{ m.workshop_address }}{% endif %}</p>
+          {% if m.distance_km is defined and m.distance_km is not none %}<p><strong>{{ m.distance_km }} km</strong> {{ t.get('gfix_approx_distance', 'approximate straight-line distance') }}</p>{% endif %}
+          <p>{{ m.description or t.get('gfix_default_mechanic_description', 'Experienced mechanic available for vehicle repairs.') }}</p>
+          <div>{% for specialty in m.specialties.split(',') %}<span class="tag">{{ specialty.strip() }}</span>{% endfor %}</div>
+          <p>
+            {% if m.roadside_available %}<span class="tag">{{ t.get('gfix_roadside', 'Roadside help') }}</span>{% endif %}
+            {% if m.workshop_available %}<span class="tag">{{ t.get('gfix_workshop_service', 'Workshop service') }}</span>{% endif %}
+          </p>
+          <p class="muted">{{ t.get('gfix_contact', 'Contact') }}: {{ m.phone }}</p>
+          <a class="btn" href="{{ url_for('gerayofix_request', mechanic_id=m.id) }}">{{ t.get('gfix_request_service', 'Request service') }}</a>
+        </article>
+      {% else %}
+        <div class="empty">
+          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>
+          <h3>{{ t.get('gfix_no_mechanics_title', 'No approved mechanics found yet') }}</h3>
+          <p>{{ t.get('gfix_no_mechanics_message', 'Try another area or register a mechanic account. Applications must be approved by an administrator before they appear here.') }}</p>
+          <a class="btn" href="{{ url_for('gerayofix_apply') }}">{{ t.get('gfix_apply_mechanic', 'Apply as a mechanic') }}</a>
+        </div>
+      {% endfor %}
+    </div>
+  </main>
+  <script>
+    if (navigator.geolocation && new URLSearchParams(location.search).get('lat') === null) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          document.getElementById('lat').value = pos.coords.latitude;
+          document.getElementById('lng').value = pos.coords.longitude;
+        },
+        () => {},
+        {timeout: 2500, maximumAge: 300000}
+      );
+    }
+  </script>
+</body>
+</html>

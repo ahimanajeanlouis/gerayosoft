@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.get('gfix_apply_title', 'Join GerayoFix') }}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f4f5f7;color:#171717;font-family:Arial,sans-serif}
+    .wrap{width:min(100% - 32px,850px);margin:28px auto}
+    .panel{background:#fff;padding:clamp(20px,5vw,30px);border-radius:18px;box-shadow:0 8px 28px #0000000c}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .brand{color:#ef8b00;font-weight:800;font-size:24px;text-decoration:none}
+    .intro{color:#667085;line-height:1.6}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .field{min-width:0;margin:12px 0}
+    .field label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
+    .field input,.field textarea{width:100%;min-height:44px;padding:12px;border:1px solid #d0d5dd;border-radius:9px;font:inherit}
+    .field textarea{min-height:100px;resize:vertical}
+    .checkrow{display:flex;gap:12px 20px;flex-wrap:wrap;margin:14px 0}
+    .checkrow label{display:flex;align-items:flex-start;gap:7px}
+    .checkrow input{margin-top:3px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;min-height:46px;border:0;background:#ff9f1c;padding:12px 18px;border-radius:9px;font-weight:800;cursor:pointer;text-decoration:none;color:#171717;text-align:center}
+    .message{padding:12px;background:#fff2d8;border-radius:9px;margin:15px 0;line-height:1.5}
+    .notice{padding:15px;background:#f8fafc;border-left:4px solid #ff9f1c;margin:18px 0;line-height:1.5}
+    .back{display:inline-block;margin:15px 0;color:#333}
+    .coordinates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .language-switch{display:inline-flex}
+    @media(max-width:600px){.wrap{width:min(100% - 20px,850px);margin:10px auto}.grid{grid-template-columns:1fr;gap:0}.coordinates{grid-template-columns:1fr}.panel{padding:18px;border-radius:14px}.submit{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="top">
+        <a class="brand" href="{{ url_for('gerayofix_find') }}">GerayoFix</a>
+        {% include '_language_switch.html' %}
+      </div>
+      <h1>{{ t.get('gfix_apply_heading', 'Register as a mechanic') }}</h1>
+      <p class="intro">{{ t.get('gfix_apply_intro', 'Offer workshop repairs, roadside assistance, or both to motorcycle and car drivers. Your profile will only become visible after administrator approval.') }}</p>
+      {% if message %}<div class="message" role="alert">{{ message }}</div>{% endif %}
+      {% if profile %}
+        <div class="notice">
+          <strong>{{ t.get('gfix_application_status', 'Application status:') }} {{ t.get('gfix_status_' ~ profile.status|lower, profile.status) }}</strong><br>
+          {% if profile.status == 'Pending' %}{{ t.get('gfix_application_pending', 'An administrator must review and approve your application before customers can find you.') }}
+          {% elif profile.status == 'Approved' %}{{ t.get('gfix_application_approved', 'Your mechanic profile is approved and can appear in search results.') }}
+          {% else %}{{ t.get('gfix_application_rejected', 'Your application was not approved. Update your details and submit again for review.') }}{% endif %}
+        </div>
+      {% endif %}
+      <form method="post">
+        <div class="grid">
+          <div class="field">
+            <label for="business_name">{{ t.get('gfix_business_name', 'Workshop / business name') }} *</label>
+            <input id="business_name" name="business_name" required maxlength="120" value="{{ profile.business_name if profile else '' }}">
+          </div>
+          <div class="field">
+            <label for="specialties">{{ t.get('gfix_specialties', 'Specialties (comma-separated)') }} *</label>
+            <input id="specialties" name="specialties" required placeholder="{{ t.get('gfix_specialties_placeholder', 'Engine, tyres, electrical') }}" value="{{ profile.specialties if profile else '' }}">
+          </div>
+          <div class="field">
+            <label for="service_area">{{ t.get('gfix_service_area', 'Area served / district') }} *</label>
+            <input id="service_area" name="service_area" required placeholder="{{ t.get('gfix_area_example', 'e.g. Gasabo, Kigali') }}" value="{{ profile.service_area if profile else '' }}">
+          </div>
+          <div class="field">
+            <label for="workshop_address">{{ t.get('gfix_workshop_address', 'Workshop address') }}</label>
+            <input id="workshop_address" name="workshop_address" value="{{ profile.workshop_address if profile else '' }}">
+          </div>
+          <div class="field">
+            <label for="experience_years">{{ t.get('gfix_experience_years', 'Years of experience') }}</label>
+            <input id="experience_years" name="experience_years" type="number" min="0" max="70" value="{{ profile.experience_years if profile else 0 }}">
+          </div>
+          <div class="field">
+            <label>{{ t.get('gfix_coordinates_optional', 'Optional map coordinates') }}</label>
+            <div class="coordinates">
+              <input name="latitude" type="number" step="any" min="-90" max="90" aria-label="{{ t.get('gfix_latitude', 'Latitude') }}" placeholder="{{ t.get('gfix_latitude', 'Latitude') }}" value="{{ profile.latitude if profile and profile.latitude is not none else '' }}">
+              <input name="longitude" type="number" step="any" min="-180" max="180" aria-label="{{ t.get('gfix_longitude', 'Longitude') }}" placeholder="{{ t.get('gfix_longitude', 'Longitude') }}" value="{{ profile.longitude if profile and profile.longitude is not none else '' }}">
+            </div>
+          </div>
+        </div>
+        <div class="checkrow">
+          <label><input type="checkbox" name="roadside_available" value="1" {{ 'checked' if not profile or profile.roadside_available }}> {{ t.get('gfix_roadside', 'Roadside assistance') }}</label>
+          <label><input type="checkbox" name="workshop_available" value="1" {{ 'checked' if not profile or profile.workshop_available }}> {{ t.get('gfix_workshop_repairs', 'Workshop repairs') }}</label>
+        </div>
+        <div class="field">
+          <label for="description">{{ t.get('gfix_describe_service', 'Describe your service') }}</label>
+          <textarea id="description" name="description" maxlength="2000" placeholder="{{ t.get('gfix_service_description_placeholder', 'Experience, hours, equipment, and services offered') }}">{{ profile.description if profile else '' }}</textarea>
+        </div>
+        <button class="btn submit" type="submit">{{ t.get('gfix_resubmit_approval', 'Resubmit for approval') if profile else t.get('gfix_submit_application', 'Submit mechanic application') }}</button>
+      </form>
+      <a class="back" href="{{ url_for('gerayofix_find') }}">← {{ t.get('gfix_back_to', 'Back to GerayoFix') }}</a>
+    </section>
+  </main>
+</body>
+</html>

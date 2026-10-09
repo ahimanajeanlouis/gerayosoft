@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="30">
+  <title>{{ t.get('mechanic_my_requests', 'My repair requests') }} | GerayoFix</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f5f7;font-family:Arial,sans-serif;color:#171717}header{background:#111;color:#fff;padding:18px max(18px,calc((100% - 1050px)/2));display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}header strong{font-size:22px;color:#ff9f1c}.wrap{max-width:1050px;margin:auto;padding:28px 16px}.card{background:#fff;border-radius:14px;padding:20px;margin:15px 0;box-shadow:0 5px 20px #0000000a}.muted{color:#667085;line-height:1.5}.tag{display:inline-block;padding:6px 10px;border-radius:20px;background:#fff0d6;color:#8a4b00;font-size:12px;font-weight:800}.notice{padding:13px 15px;border-radius:10px;margin:15px 0;line-height:1.5;background:#f0fdf4;border-left:4px solid #16803c}.notice.rejected{background:#fff1f0;border-left-color:#b42318}.links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.links a{color:white;text-decoration:none}.empty{padding:30px;background:white;border-radius:14px;text-align:center}.empty a{color:#8a4b00}.refresh{font-size:13px}@media(max-width:600px){header{padding:16px;align-items:flex-start}.links{gap:8px 12px}.wrap{padding:18px 12px}.card{padding:16px}.card h2{font-size:19px}.notice{overflow-wrap:anywhere}}
+  </style>
+</head>
+<body>
+  <header>
+    <strong>GerayoFix · {{ t.get('mechanic_my_requests', 'My repair requests') }}</strong>
+    <nav class="links">
+      <a href="{{ url_for('gerayofix_find') }}">{{ t.get('mechanic_find_customers', 'Find mechanics') }}</a>
+      <a href="{{ url_for('logout') }}">{{ t.get('mechanic_logout', 'Log out') }}</a>
+      {% include '_language_switch.html' %}
+    </nav>
+  </header>
+  <main class="wrap">
+    <h1>{{ t.get('mechanic_customer_requests_title', 'Your repair requests') }}</h1>
+    <p class="muted">{{ t.get('mechanic_customer_requests_intro', 'Check the status of repair requests you sent to mechanics.') }}</p>
+    <p class="muted refresh">{{ t.get('mechanic_customer_requests_refresh', 'This page refreshes automatically every 30 seconds.') }}</p>
+    {% for r in requests_list %}
+      <article class="card">
+        <span class="tag">{{ t.get('repair_status_' ~ r.status|lower|replace(' ', '_'), r.status) }}</span>
+        <h2>{{ t.get('gfix_category_' ~ r.service_type|lower|replace(' / ', '_')|replace(' ', '_')|replace('/', '_'), r.service_type) }} · {{ t.get('gfix_' ~ r.vehicle_type|lower, r.vehicle_type) }}</h2>
+        <p><strong>{{ t.get('mechanic_service_type', 'Service type') }}:</strong> {{ t.get('gfix_' ~ r.assistance_type|lower, r.assistance_type) }} · <strong>{{ t.get('mechanic_location', 'Location') }}:</strong> {{ r.location_text }}</p>
+        <p>{{ r.issue_description }}</p>
+        {% if r.vehicle_details %}<p class="muted">{{ t.get('mechanic_vehicle_details', 'Vehicle details') }}: {{ r.vehicle_details }}</p>{% endif %}
+        <p class="muted">{{ t.get('mechanic_assigned', 'Mechanic') }}: {{ r.business_name or t.get('mechanic_unassigned', 'Not assigned') }}{% if r.mechanic_phone %} · {{ r.mechanic_phone }}{% endif %}</p>
+        {% if r.status == 'Accepted' %}
+          <div class="notice" role="status"><strong>{{ t.get('repair_request_accepted_title', 'Mechanic accepted your request') }}</strong><br>{{ t.get('repair_request_accepted_message', 'The mechanic accepted your repair request. Contact the mechanic using the phone number above to coordinate the service.') }}</div>
+        {% elif r.status == 'Declined' %}
+          <div class="notice rejected" role="status"><strong>{{ t.get('repair_request_rejected_title', 'Mechanic rejected your request') }}</strong><br>{{ t.get('repair_request_rejected_message', 'The mechanic cannot take this repair request. Please choose another approved mechanic.') }}</div>
+        {% elif r.status == 'Pending' %}
+          <p class="muted">{{ t.get('repair_request_pending_message', 'Your request is waiting for the mechanic to accept or reject it.') }}</p>
+        {% endif %}
+      </article>
+    {% else %}
+      <div class="empty">
+        <h2>{{ t.get('mechanic_no_customer_requests_title', 'No repair requests yet') }}</h2>
+        <p>{{ t.get('mechanic_no_customer_requests_message', 'When you request a repair service, its status will appear here.') }}</p>
+        <a href="{{ url_for('gerayofix_find') }}">{{ t.get('mechanic_find_customers', 'Find mechanics') }}</a>
+      </div>
+    {% endfor %}
+  </main>
+</body>
+</html>
