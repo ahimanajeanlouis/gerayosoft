@@ -1,672 +1,311 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ t.get('create_account', 'create_account') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ t.get('create_account', 'Create Account') }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
             --green: #1b4d3c;
             --green-soft: #edf6ee;
             --orange: #f59e0b;
-            --orange-soft: #fff5df;
-            --text: #1c1d1f;
+            --ink: #1c1d1f;
             --muted: #5d6471;
             --line: #e5e7eb;
-            --white: #ffffff;
-            --shadow: 0 28px 90px rgba(17, 24, 39, 0.12);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
+        * { box-sizing: border-box; }
         body {
             min-height: 100vh;
+            margin: 0;
+            padding: 24px;
             display: grid;
             place-items: center;
-            padding: 24px;
-            background: linear-gradient(135deg, #eef5f0 0%, #f5efe7 100%);
-            color: var(--text);
+            color: var(--ink);
+            background: linear-gradient(135deg, #eef5f0, #f5efe7);
+            font-family: "Segoe UI", Arial, sans-serif;
         }
-
-        .register-shell {
-            width: min(100%, 760px);
+        .shell { width: min(100%, 760px); }
+        .card {
+            padding: 28px;
+            border: 1px solid #1b4d3c14;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 28px 90px #1118271f;
         }
-
-        .register-card {
-            background: var(--white);
-            border-radius: 28px;
-            box-shadow: var(--shadow);
-            padding: 28px 28px 32px;
-            border: 1px solid rgba(27, 77, 60, 0.08);
-        }
-
-        .intro {
-            font-size: 14px;
+        .intro, .step-label {
             color: var(--muted);
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .progress {
-            height: 8px;
-            width: 100%;
-            border-radius: 999px;
-            background: #ebedf0;
-            overflow: hidden;
-            margin: 18px 0 12px;
-        }
-
-        .progress-bar {
-            width: 33.33%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--orange), #f8c86b);
-            border-radius: inherit;
-            transition: width 0.25s ease;
-        }
-
-        .step-label {
             font-size: 12px;
-            color: var(--muted);
-            letter-spacing: 0.06em;
+            font-weight: 700;
+            letter-spacing: .08em;
             text-transform: uppercase;
-            margin-bottom: 18px;
         }
-
-        .step-panel {
-            display: none;
-            animation: fadeUp 0.25s ease;
-        }
-
-        .step-panel.active {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            font-size: clamp(2rem, 3vw, 2.8rem);
-            line-height: 1.1;
-            margin-bottom: 10px;
-            color: #111827;
-        }
-
-        .subtext {
-            color: var(--muted);
-            margin-bottom: 24px;
-            font-size: 15px;
-        }
-
-        .account-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-            margin-top: 12px;
-        }
-
+        .progress { height: 8px; margin: 16px 0 10px; overflow: hidden; border-radius: 99px; background: #ebedf0; }
+        .progress-bar { width: 33.33%; height: 100%; border-radius: inherit; background: var(--orange); transition: width .25s ease; }
+        .step-label { margin: 0 0 24px; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        h1 { margin: 0 0 10px; font-size: clamp(26px, 5vw, 36px); }
+        .subtext { margin: 0 0 24px; color: var(--muted); line-height: 1.55; }
+        .account-grid, .field-grid, .document-grid { display: grid; gap: 16px; }
+        .account-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .account-option {
-            width: 100%;
-            background: var(--white);
+            padding: 22px 16px;
             border: 1px solid var(--line);
-            border-radius: 18px;
-            padding: 26px 18px 18px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text);
-        }
-
-        .account-option:hover,
-        .account-option.selected {
-            border-color: rgba(27, 77, 60, 0.5);
-            background: var(--green-soft);
-            transform: translateY(-2px);
-        }
-
-        .account-option i {
-            font-size: 38px;
-            color: var(--green);
-            margin-bottom: 16px;
-            display: inline-flex;
-            width: 68px;
-            height: 68px;
-            align-items: center;
-            justify-content: center;
-            background: rgba(27, 77, 60, 0.06);
-            border-radius: 18px;
-        }
-
-        .account-option strong {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.25rem;
-            color: #111827;
-        }
-
-        .account-option span {
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.8;
-        }
-
-        .selected-account {
-            margin-top: 22px;
-            color: var(--green);
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .field-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .field-grid .full {
-            grid-column: 1 / -1;
-        }
-
-        .field-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .field-wrap label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .input-box {
-            position: relative;
-        }
-
-        .input-box i {
-            position: absolute;
-            top: 50%;
-            left: 16px;
-            transform: translateY(-50%);
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .input-box input,
-        .input-box select {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 14px 16px 14px 42px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            background: #fff;
-        }
-
-        .input-box input:focus,
-        .input-box select:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 0 4px rgba(27, 77, 60, 0.08);
-        }
-
-        .field-wrap .inline-input {
-            padding-left: 16px;
-        }
-
-        .password-box {
-            position: relative;
-        }
-
-        .password-box input {
-            padding-right: 42px;
-        }
-
-        .password-box .eye-toggle {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-        }
-
-        .password-checks {
-            margin-top: 8px;
-            background: #fafafa;
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 12px 14px;
-        }
-
-        .password-checks h3 {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 8px;
-            color: var(--muted);
-        }
-
-        .password-checks ul {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px 12px;
-            list-style: none;
-        }
-
-        .password-checks li {
-            font-size: 12px;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .password-checks li::before {
-            content: '✕';
-            color: #c2410c;
-            font-weight: 700;
-        }
-
-        .password-checks li.valid {
-            color: #166534;
-        }
-
-        .password-checks li.valid::before {
-            content: '✓';
-            color: #16a34a;
-        }
-
-        .password-note {
-            min-height: 18px;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #b91c1c;
-        }
-
-        .password-note.valid {
-            color: #166534;
-        }
-
-        .button-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-top: 26px;
-        }
-
-        .button-row .spacer {
-            flex: 1;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 12px;
-            padding: 14px 22px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn.primary {
-            background: var(--green);
-            color: var(--white);
-        }
-
-        .btn.secondary {
-            background: #f2f3f5;
-            color: #111827;
-        }
-
-        .btn.ghost {
-            background: transparent;
-            color: var(--green);
-            border: 1px solid var(--line);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .driver-documents {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            margin-top: 18px;
-        }
-
-        .upload-box {
-            border: 1.5px dashed #d3d9d6;
             border-radius: 16px;
-            background: #fafcfb;
-            padding: 18px;
-            min-height: 150px;
+            background: #fff;
+            color: var(--ink);
+            text-align: center;
+            cursor: pointer;
+        }
+        .account-option.selected, .account-option:hover { border-color: var(--green); background: var(--green-soft); }
+        .account-option i { display: block; margin-bottom: 12px; color: var(--green); font-size: 34px; }
+        .account-option strong, .account-option span { display: block; }
+        .account-option strong { margin-bottom: 8px; font-size: 18px; }
+        .account-option span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .selected-account { margin-top: 18px; color: var(--green); font-weight: 700; }
+        .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .field { min-width: 0; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+        .input { position: relative; }
+        .input > i {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+        }
+        .input input, .input textarea {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: #fff;
+            font: inherit;
+        }
+        .input textarea { min-height: 100px; padding-left: 14px; resize: vertical; }
+        .input input:focus, .input textarea:focus { outline: 3px solid #1b4d3c18; border-color: var(--green); }
+        .password-input { padding-right: 44px !important; }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .requirements { margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fafafa; }
+        .requirements h2 { margin: 0 0 10px; font-size: 13px; }
+        .requirements ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; margin: 0; padding: 0; list-style: none; }
+        .requirements li { color: var(--muted); font-size: 12px; }
+        .requirements li::before { content: "✕ "; color: #c2410c; }
+        .requirements li.valid { color: #166534; }
+        .requirements li.valid::before { content: "✓ "; color: #16a34a; }
+        .notice { min-height: 18px; margin-top: 8px; color: #b42318; font-size: 13px; }
+        .notice.valid { color: #166534; }
+        .document-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 18px 0; }
+        .upload {
+            min-height: 132px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
+            border: 1px dashed #cbd5d0;
+            border-radius: 14px;
+            background: #fafcfb;
         }
-
-        .upload-box i {
-            font-size: 2rem;
-            color: var(--green);
-        }
-
-        .upload-box span {
-            font-size: 13px;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .upload-box input {
-            width: 100%;
-            border: 1px solid var(--line);
+        .upload i { color: var(--green); font-size: 27px; }
+        .upload span { font-size: 13px; font-weight: 700; }
+        .upload input { width: 100%; font-size: 12px; }
+        .service-options { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+        .service-options label { display: flex; align-items: center; gap: 7px; font-weight: 500; }
+        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        .actions .spacer { flex: 1; }
+        .button {
+            padding: 13px 20px;
+            border: 0;
             border-radius: 10px;
-            background: #fff;
-            padding: 10px 12px;
-            font-size: 13px;
-        }
-
-        .vehicle-field {
-            margin-top: 4px;
-        }
-
-        .login-link {
-            margin-top: 22px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .login-link a {
-            color: var(--green);
+            font: inherit;
             font-weight: 700;
-            text-decoration: none;
+            cursor: pointer;
         }
-
-        .message {
-            margin-bottom: 18px;
-            background: #fff5f5;
-            border: 1px solid #fde2e2;
-            color: #b91c1c;
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 680px) {
-            .account-grid,
-            .field-grid,
-            .driver-documents {
-                grid-template-columns: 1fr;
-            }
-
-            .register-card {
-                padding: 22px 18px 24px;
-            }
+        .button.primary { color: #fff; background: var(--green); }
+        .button.secondary { color: var(--ink); background: #f1f2f4; }
+        .message { margin-bottom: 18px; padding: 12px; border-radius: 10px; background: #fff0f0; color: #b42318; }
+        .login-link { margin-top: 22px; text-align: center; color: var(--muted); font-size: 14px; }
+        .login-link a { color: var(--green); font-weight: 700; }
+        @media (max-width: 620px) {
+            body { padding: 14px; }
+            .card { padding: 20px 16px; }
+            .account-grid, .field-grid, .document-grid { grid-template-columns: 1fr; }
+            .requirements ul { grid-template-columns: 1fr; }
+            .account-option { padding: 16px; }
+            .account-option i { margin-bottom: 7px; }
         }
     </style>
 </head>
 <body>
     {% with floating = true %}{% include '_language_switch.html' %}{% endwith %}
-
-    <div class="register-shell">
-        <div class="register-card">
+    <main class="shell">
+        <div class="card">
             <p class="intro" id="introText">{{ t.get('create_account', 'Create Account') }}</p>
             <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
             <p class="step-label" id="stepLabel">{{ t.get('register_step_one', 'Step 1 of 3') }}</p>
 
-            {% if message %}
-                <div class="message">{{ message|safe }}</div>
-            {% endif %}
+            {% if message %}<div class="message" role="alert">{{ message|safe }}</div>{% endif %}
 
-            <section class="step-panel active" id="stepType">
+            <section class="panel active" id="stepType">
                 <h1>{{ t.get('register_choose_type_heading', 'Choose your account type') }}</h1>
                 <p class="subtext">{{ t.get('register_choose_type_help', 'Select the option that matches your role on the platform.') }}</p>
-
                 <div class="account-grid">
-                    <button class="account-option {{ 'selected' if selected_account_type == 'Client' or not selected_account_type else '' }}" type="button" data-type="Client" data-label="{{ t.get('client', 'Client') }}">
+                    <button class="account-option" type="button" data-type="Client" data-label="{{ t.get('client', 'Client') }}">
                         <i class="fa-solid fa-user"></i>
                         <strong>{{ t.get('client', 'Client') }}</strong>
                         <span>{{ t.get('register_client_description', 'Book rides and request services.') }}</span>
                     </button>
-                    <button class="account-option {{ 'selected' if selected_account_type == 'Driver' else '' }}" type="button" data-type="Driver" data-label="{{ t.get('driver', 'Driver') }}">
+                    <button class="account-option" type="button" data-type="Driver" data-label="{{ t.get('driver', 'Driver') }}">
                         <i class="fa-solid fa-car-side"></i>
                         <strong>{{ t.get('driver', 'Driver') }}</strong>
                         <span>{{ t.get('register_driver_description', 'Drive and complete passenger requests.') }}</span>
                     </button>
-                    <button class="account-option {{ 'selected' if selected_account_type == 'Mechanic' else '' }}" type="button" data-type="Mechanic" data-label="{{ t.get('register_mechanic', 'Mechanic') }}">
+                    <button class="account-option" type="button" data-type="Mechanic" data-label="{{ t.get('register_mechanic', 'Mechanic') }}">
                         <i class="fa-solid fa-screwdriver-wrench"></i>
                         <strong>{{ t.get('register_mechanic', 'Mechanic') }}</strong>
                         <span>{{ t.get('register_mechanic_description', 'Offer repair and roadside support.') }}</span>
                     </button>
                 </div>
-
-                <div class="selected-account">{{ t.get('register_selected_account', 'Selected account:') }} <span id="selectedAccountLabel">{{ t.get('driver', 'Driver') if selected_account_type == 'Driver' else t.get('register_mechanic', 'Mechanic') if selected_account_type == 'Mechanic' else t.get('client', 'Client') }}</span></div>
-                <div class="button-row">
+                <p class="selected-account">{{ t.get('register_selected_account', 'Selected account:') }} <span id="selectedAccountLabel"></span></p>
+                <div class="actions">
                     <span class="spacer"></span>
-                    <button class="btn primary" type="button" id="typeNext">{{ t.get('register_continue', 'Continue') }}</button>
+                    <button class="button primary" type="button" id="typeNext">{{ t.get('register_continue', 'Continue') }}</button>
                 </div>
             </section>
 
             <form method="POST" enctype="multipart/form-data" id="registerForm" novalidate>
-                <section class="step-panel" id="stepDetails">
-                    <h1 id="detailsTitle">{{ t.get('register_account_title', 'Create {role} account').replace('{role}', t.get('driver', 'Driver') if selected_account_type == 'Driver' else t.get('register_mechanic', 'Mechanic') if selected_account_type == 'Mechanic' else t.get('client', 'Client')) }}</h1>
+                <input type="hidden" name="account_type" id="accountTypeInput">
+
+                <section class="panel" id="stepDetails">
+                    <h1 id="detailsTitle"></h1>
                     <p class="subtext">{{ t.get('register_details_intro', 'Fill in your personal information to continue.') }}</p>
-
-                    <input type="hidden" name="account_type" id="accountTypeInput" value="{{ selected_account_type if selected_account_type in ('Client', 'Driver', 'Mechanic') else 'Client' }}">
-
                     <div class="field-grid">
-                        <div class="field-wrap full">
+                        <div class="field full">
                             <label for="full_name">{{ t.get('full_name', 'Full name') }}</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-user"></i>
-                                <input id="full_name" type="text" name="full_name" placeholder="{{ t.get('register_name_placeholder', 'Your full name') }}" required>
-                            </div>
+                            <div class="input"><i class="fa-solid fa-user"></i><input id="full_name" name="full_name" type="text" maxlength="100" required autocomplete="name" placeholder="{{ t.get('register_name_placeholder', 'Your full name') }}"></div>
                         </div>
-
-                        <div class="field-wrap full">
+                        <div class="field full">
                             <label for="email">{{ t.get('email_address', 'Email address') }}</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-envelope"></i>
-                                <input id="email" type="email" name="email" placeholder="{{ t.get('register_email_placeholder', 'you@example.com') }}" required>
-                            </div>
+                            <div class="input"><i class="fa-solid fa-envelope"></i><input id="email" name="email" type="email" maxlength="100" required autocomplete="email" placeholder="{{ t.get('register_email_placeholder', 'you@example.com') }}"></div>
                         </div>
-
-                        <div class="field-wrap full">
-                            <label for="phone">{{ t.get('phone_number', 'Phone') }}</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-phone"></i>
-                                <input id="phone" type="tel" name="phone" placeholder="{{ t.get('register_phone_placeholder', '0781234567') }}" inputmode="tel" required>
-                            </div>
+                        <div class="field full">
+                            <label for="phone">{{ t.get('phone_number', 'Phone number') }}</label>
+                            <div class="input"><i class="fa-solid fa-phone"></i><input id="phone" name="phone" type="tel" maxlength="25" required autocomplete="tel" inputmode="tel" placeholder="{{ t.get('register_phone_placeholder', '0781234567') }}"></div>
                         </div>
-
-                        <div class="field-wrap">
+                        <div class="field">
                             <label for="password">{{ t.get('password', 'Password') }}</label>
-                            <div class="password-box input-box">
-                                <i class="fa-solid fa-lock"></i>
-                                <input id="password" type="password" name="password" placeholder="{{ t.get('register_password_placeholder', 'Create a password') }}" required>
-                                <button class="eye-toggle" type="button" data-target="password" aria-label="{{ t.get('register_toggle_password', 'Toggle password visibility') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
+                            <div class="input"><i class="fa-solid fa-lock"></i><input class="password-input" id="password" name="password" type="password" required autocomplete="new-password" placeholder="{{ t.get('register_password_placeholder', 'Create a password') }}"><button class="toggle-password" type="button" data-target="password" aria-label="{{ t.get('register_toggle_password', 'Toggle password visibility') }}"><i class="fa-solid fa-eye"></i></button></div>
                         </div>
-
-                        <div class="field-wrap">
+                        <div class="field">
                             <label for="confirmPassword">{{ t.get('confirm_password', 'Confirm password') }}</label>
-                            <div class="password-box input-box">
-                                <i class="fa-solid fa-lock"></i>
-                                <input id="confirmPassword" type="password" name="confirm_password" placeholder="{{ t.get('register_confirm_password_placeholder', 'Repeat your password') }}" required>
-                                <button class="eye-toggle" type="button" data-target="confirmPassword" aria-label="{{ t.get('register_toggle_password', 'Toggle password visibility') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
+                            <div class="input"><i class="fa-solid fa-lock"></i><input class="password-input" id="confirmPassword" name="confirm_password" type="password" required autocomplete="new-password" placeholder="{{ t.get('register_confirm_password_placeholder', 'Repeat your password') }}"><button class="toggle-password" type="button" data-target="confirmPassword" aria-label="{{ t.get('register_toggle_password', 'Toggle password visibility') }}"><i class="fa-solid fa-eye"></i></button></div>
                         </div>
                     </div>
-
-                    <div class="password-checks" aria-live="polite">
-                        <h3>{{ t.get('password_requirements_title', 'Password requirements') }}</h3>
+                    <div class="requirements" aria-live="polite">
+                        <h2>{{ t.get('password_requirements_title', 'Password requirements') }}</h2>
                         <ul>
                             <li data-rule="minLength">{{ t.get('password_rule_min_length', 'At least 8 characters') }}</li>
                             <li data-rule="uppercase">{{ t.get('password_rule_uppercase', 'One uppercase letter') }}</li>
                             <li data-rule="lowercase">{{ t.get('password_rule_lowercase', 'One lowercase letter') }}</li>
                             <li data-rule="number">{{ t.get('password_rule_number', 'One number') }}</li>
                             <li data-rule="special">{{ t.get('password_rule_special', 'One special character') }}</li>
-                            <li data-rule="maxLength">{{ t.get('password_rule_max_length', 'No more than 64 characters') }}</li>
+                            <li data-rule="maxLength">{{ t.get('password_rule_max_length', 'Maximum 64 characters') }}</li>
                         </ul>
                     </div>
-                    <div class="password-note" id="passwordNote"></div>
-
-                    <div class="button-row">
-                        <button class="btn secondary" type="button" id="detailsBack">{{ t.get('register_back', 'Back') }}</button>
+                    <p class="notice" id="passwordNote" aria-live="polite"></p>
+                    <div class="actions">
+                        <button class="button secondary" type="button" id="detailsBack">{{ t.get('register_back', 'Back') }}</button>
                         <span class="spacer"></span>
-                        <button class="btn primary" type="button" id="detailsNext">{{ t.get('register_continue', 'Continue') }}</button>
+                        <button class="button primary" type="button" id="detailsNext">{{ t.get('register_continue', 'Continue') }}</button>
                     </div>
                 </section>
 
-                <section class="step-panel" id="stepDocuments">
-                <div id="driverStep">
-                    <h1>{{ t.get('driver_verification', 'Driver verification') }}</h1>
-                    <p class="subtext">{{ t.get('register_driver_documents_intro', 'Upload the required documents so your account can be reviewed.') }}</p>
-
-                    <div class="driver-documents">
-                        <div class="upload-box">
-                            <i class="fa-regular fa-id-card"></i>
-                            <span>{{ t.get('national_id_front', 'National ID front') }}</span>
-                            <input type="file" name="id_front" accept="image/*,.pdf" required>
+                <section class="panel" id="stepProfile">
+                    <div id="driverFields">
+                        <h1>{{ t.get('driver_verification', 'Driver verification') }}</h1>
+                        <p class="subtext">{{ t.get('register_driver_documents_intro', 'Upload the required documents so your account can be reviewed.') }}</p>
+                        <div class="document-grid">
+                            <label class="upload"><i class="fa-regular fa-id-card"></i><span>{{ t.get('national_id_front', 'National ID front') }}</span><input type="file" name="id_front" accept="image/*,.pdf" required></label>
+                            <label class="upload"><i class="fa-regular fa-id-card"></i><span>{{ t.get('national_id_back', 'National ID back') }}</span><input type="file" name="id_back" accept="image/*,.pdf" required></label>
+                            <label class="upload"><i class="fa-solid fa-id-badge"></i><span>{{ t.get('permit_license', 'Permit license') }}</span><input type="file" name="permit_license" accept="image/*,.pdf" required></label>
+                            <label class="upload"><i class="fa-solid fa-motorcycle"></i><span>{{ t.get('plate_photo', 'Plate photo') }}</span><input type="file" name="plate_photo" accept="image/*,.pdf" required></label>
                         </div>
-                        <div class="upload-box">
-                            <i class="fa-regular fa-id-card"></i>
-                            <span>{{ t.get('national_id_back', 'National ID back') }}</span>
-                            <input type="file" name="id_back" accept="image/*,.pdf" required>
-                        </div>
-                        <div class="upload-box">
-                            <i class="fa-solid fa-id-badge"></i>
-                            <span>{{ t.get('permit_license', 'Driving permit/license') }}</span>
-                            <input type="file" name="permit_license" accept="image/*,.pdf" required>
-                        </div>
-                        <div class="upload-box">
-                            <i class="fa-solid fa-motorcycle"></i>
-                            <span>{{ t.get('plate_photo', 'Vehicle plate photo') }}</span>
-                            <input type="file" name="plate_photo" accept="image/*,.pdf" required>
+                        <div class="field">
+                            <label for="plateNumber">{{ t.get('plate_number', 'Plate number') }}</label>
+                            <div class="input"><i class="fa-solid fa-rectangle-list"></i><input id="plateNumber" type="text" name="plate_number" maxlength="100" required placeholder="{{ t.get('register_plate_placeholder', 'Example: RAD 123 A') }}"></div>
                         </div>
                     </div>
 
-                    <div class="field-wrap vehicle-field">
-                        <label for="plateNumber">{{ t.get('plate_number', 'Plate number') }}</label>
-                        <div class="input-box">
-                            <i class="fa-solid fa-rectangle-list"></i>
-                            <input id="plateNumber" type="text" name="plate_number" placeholder="{{ t.get('register_plate_placeholder', 'Example: RAD 123 A') }}" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="mechanicFields" style="display:none; margin-top: 18px;">
-                    <h1>{{ t.get('gfix_apply_heading', 'Mechanic application') }}</h1>
-                    <p class="subtext">{{ t.get('register_mechanic_intro', 'Tell us about your workshop and the services you provide.') }}</p>
-                    <div class="field-grid">
-                        <div class="field-wrap">
-                            <label for="business_name">{{ t.get('gfix_business_name', 'Workshop / business name') }} *</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-store"></i>
-                                <input id="business_name" type="text" name="business_name" placeholder="{{ t.get('gfix_business_name', 'Garage name') }}" maxlength="120" required>
+                    <div id="mechanicFields">
+                        <h1>{{ t.get('gfix_apply_heading', 'Register as a mechanic') }}</h1>
+                        <p class="subtext">{{ t.get('register_mechanic_intro', 'Tell us about your workshop and the services you provide.') }}</p>
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="business_name">{{ t.get('gfix_business_name', 'Workshop / business name') }} *</label>
+                                <div class="input"><i class="fa-solid fa-store"></i><input id="business_name" name="business_name" type="text" maxlength="120" required placeholder="{{ t.get('gfix_business_name', 'Workshop / business name') }}"></div>
                             </div>
-                        </div>
-                        <div class="field-wrap">
-                            <label for="specialties">{{ t.get('gfix_specialties', 'Specialties') }} *</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-wrench"></i>
-                                <input id="specialties" type="text" name="specialties" placeholder="{{ t.get('gfix_specialties_placeholder', 'Engine, tyres, electrical') }}" maxlength="255" required>
+                            <div class="field">
+                                <label for="specialties">{{ t.get('gfix_specialties', 'Specialties') }} *</label>
+                                <div class="input"><i class="fa-solid fa-wrench"></i><input id="specialties" name="specialties" type="text" maxlength="255" required placeholder="{{ t.get('gfix_specialties_placeholder', 'Engine, tyres, electrical') }}"></div>
                             </div>
-                        </div>
-                        <div class="field-wrap">
-                            <label for="service_area">{{ t.get('gfix_service_area', 'Area served / district') }} *</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <input id="service_area" type="text" name="service_area" placeholder="{{ t.get('gfix_area_example', 'e.g. Gasabo, Kigali') }}" maxlength="255" required>
+                            <div class="field">
+                                <label for="service_area">{{ t.get('gfix_service_area', 'Area served / district') }} *</label>
+                                <div class="input"><i class="fa-solid fa-location-dot"></i><input id="service_area" name="service_area" type="text" maxlength="255" required placeholder="{{ t.get('gfix_area_example', 'e.g. Gasabo, Kigali') }}"></div>
                             </div>
-                        </div>
-                        <div class="field-wrap">
-                            <label for="workshop_address">{{ t.get('gfix_workshop_address', 'Workshop address') }}</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                                <input id="workshop_address" type="text" name="workshop_address" placeholder="{{ t.get('gfix_workshop_address', 'Workshop address') }}" maxlength="255">
+                            <div class="field">
+                                <label for="workshop_address">{{ t.get('gfix_workshop_address', 'Workshop address') }}</label>
+                                <div class="input"><i class="fa-solid fa-map-location-dot"></i><input id="workshop_address" name="workshop_address" type="text" maxlength="255" placeholder="{{ t.get('gfix_workshop_address', 'Workshop address') }}"></div>
                             </div>
-                        </div>
-                        <div class="field-wrap">
-                            <label for="experience_years">{{ t.get('gfix_experience_years', 'Years of experience') }}</label>
-                            <div class="input-box">
-                                <i class="fa-solid fa-clock"></i>
-                                <input id="experience_years" type="number" name="experience_years" min="0" max="70" value="0">
+                            <div class="field">
+                                <label for="experience_years">{{ t.get('gfix_experience_years', 'Years of experience') }}</label>
+                                <div class="input"><i class="fa-solid fa-clock"></i><input id="experience_years" name="experience_years" type="number" min="0" max="70" value="0"></div>
                             </div>
-                        </div>
-                        <div class="field-wrap">
-                            <label>{{ t.get('gfix_coordinates_optional', 'Optional map coordinates') }}</label>
-                            <div class="field-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
-                                <div class="input-box">
-                                    <i class="fa-solid fa-location-crosshairs"></i>
-                                    <input type="number" name="latitude" step="any" min="-90" max="90" placeholder="{{ t.get('gfix_latitude', 'Latitude') }}" aria-label="{{ t.get('gfix_latitude', 'Latitude') }}">
-                                </div>
-                                <div class="input-box">
-                                    <i class="fa-solid fa-location-crosshairs"></i>
-                                    <input type="number" name="longitude" step="any" min="-180" max="180" placeholder="{{ t.get('gfix_longitude', 'Longitude') }}" aria-label="{{ t.get('gfix_longitude', 'Longitude') }}">
+                            <div class="field">
+                                <label>{{ t.get('gfix_coordinates_optional', 'Optional map coordinates') }}</label>
+                                <div class="field-grid">
+                                    <div class="input"><i class="fa-solid fa-location-crosshairs"></i><input name="latitude" type="number" step="any" min="-90" max="90" placeholder="{{ t.get('gfix_latitude', 'Latitude') }}" aria-label="{{ t.get('gfix_latitude', 'Latitude') }}"></div>
+                                    <div class="input"><i class="fa-solid fa-location-crosshairs"></i><input name="longitude" type="number" step="any" min="-180" max="180" placeholder="{{ t.get('gfix_longitude', 'Longitude') }}" aria-label="{{ t.get('gfix_longitude', 'Longitude') }}"></div>
                                 </div>
                             </div>
-                            <p class="password-note" id="applicationNote" aria-live="polite"></p>
-                        </div>
-                        <div class="field-wrap full">
-                            <label>{{ t.get('register_services_offered', 'Services offered') }}</label>
-                            <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:8px;">
-                                <label style="display:flex; align-items:center; gap:8px; color:#374151; font-size:14px;">
-                                    <input type="checkbox" name="roadside_available" value="1" checked>
-                                    {{ t.get('gfix_roadside', 'Roadside assistance') }}
-                                </label>
-                                <label style="display:flex; align-items:center; gap:8px; color:#374151; font-size:14px;">
-                                    <input type="checkbox" name="workshop_available" value="1" checked>
-                                    {{ t.get('gfix_workshop_repairs', 'Workshop repairs') }}
-                                </label>
+                            <div class="field full">
+                                <label>{{ t.get('register_services_offered', 'Services offered') }}</label>
+                                <div class="service-options">
+                                    <label><input type="checkbox" name="roadside_available" value="1" checked> {{ t.get('gfix_roadside', 'Roadside assistance') }}</label>
+                                    <label><input type="checkbox" name="workshop_available" value="1" checked> {{ t.get('gfix_workshop_repairs', 'Workshop repairs') }}</label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field-wrap full">
-                            <label for="description">{{ t.get('gfix_describe_service', 'Describe your service') }}</label>
-                            <div class="input-box">
-                                <textarea id="description" name="description" rows="4" placeholder="{{ t.get('gfix_service_description_placeholder', 'Experience, hours, equipment, and services offered') }}" maxlength="2000" style="width:100%; min-height:110px; resize:vertical; border:1px solid var(--line); border-radius:12px; padding:14px 16px; font-size:15px; outline:none; background:white;"></textarea>
+                            <div class="field full">
+                                <label for="description">{{ t.get('gfix_describe_service', 'Describe your service') }}</label>
+                                <div class="input"><textarea id="description" name="description" maxlength="2000" placeholder="{{ t.get('gfix_service_description_placeholder', 'Experience, hours, equipment, and services offered') }}"></textarea></div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="button-row">
-                    <button class="btn secondary" type="button" id="documentsBack">{{ t.get('register_back', 'Back') }}</button>
-                    <span class="spacer"></span>
-                    <button class="btn primary" type="submit" id="submitAccountBtn">{{ t.get('create_account_btn', 'Create Account') }}</button>
-                </div>
+                    <p class="notice" id="profileNote" aria-live="polite"></p>
+                    <div class="actions">
+                        <button class="button secondary" type="button" id="profileBack">{{ t.get('register_back', 'Back') }}</button>
+                        <span class="spacer"></span>
+                        <button class="button primary" type="submit">{{ t.get('create_account_btn', 'Create Account') }}</button>
+                    </div>
                 </section>
             </form>
 
-            <div class="login-link">
-                {{ t.get('already_have_account', 'Already have an account?') }} <a href="{{ url_for('login') }}">{{ t.get('login', 'Log in') }}</a>
-            </div>
+            <div class="login-link">{{ t.get('already_have_account', 'Already have an account?') }} <a href="{{ url_for('login') }}">{{ t.get('login', 'Log in') }}</a></div>
         </div>
-    </div>
+    </main>
 
     <div id="registerCopy" hidden
         data-step-one="{{ t.get('register_step_one', 'Step 1 of 3') }}"
@@ -680,184 +319,151 @@
         data-password-match="{{ t.get('passwords_match', 'Passwords match') }}"
         data-password-mismatch="{{ t.get('passwords_do_not_match', 'Passwords do not match') }}"
         data-select-service="{{ t.get('register_select_service', 'Select at least one service offered.') }}"></div>
-
     <script>
-        const stepType = document.getElementById('stepType');
-        const stepDetails = document.getElementById('stepDetails');
-        const stepDocuments = document.getElementById('stepDocuments');
-        const progressBar = document.getElementById('progressBar');
-        const stepLabel = document.getElementById('stepLabel');
-        const introText = document.getElementById('introText');
+        const form = document.getElementById('registerForm');
         const accountTypeInput = document.getElementById('accountTypeInput');
         const selectedAccountLabel = document.getElementById('selectedAccountLabel');
         const detailsTitle = document.getElementById('detailsTitle');
-        const form = document.getElementById('registerForm');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
         const passwordNote = document.getElementById('passwordNote');
-
-        const registerCopy = document.getElementById('registerCopy').dataset;
-        let currentType = document.getElementById('accountTypeInput').value;
-
-        function setStep(step) {
-            const panels = [stepType, stepDetails, stepDocuments];
-            panels.forEach((panel, index) => {
-                panel.classList.toggle('active', index === step);
-            });
-
-            const detailsButtons = document.querySelectorAll('#detailsBack, #detailsNext');
-            const docsControls = document.querySelectorAll('#stepDocuments input, #stepDocuments select, #documentsBack, #submitAccountBtn');
-            detailsButtons.forEach((el) => {
-                el.disabled = step !== 1;
-            });
-            docsControls.forEach((el) => {
-                el.disabled = step !== 2;
-            });
-
-            const driverStep = document.getElementById('driverStep');
-            const mechanicFields = document.getElementById('mechanicFields');
-            driverStep.style.display = currentType === 'Driver' ? 'block' : 'none';
-            mechanicFields.style.display = currentType === 'Mechanic' ? 'block' : 'none';
-            driverStep.querySelectorAll('input').forEach((el) => {
-                el.disabled = step !== 2 || currentType !== 'Driver';
-            });
-            mechanicFields.querySelectorAll('input, textarea, select').forEach((el) => {
-                el.disabled = step !== 2 || currentType !== 'Mechanic';
-            });
-
-            const widths = ['33.33%', '66.66%', '100%'];
-            const stepLabels = [registerCopy.stepOne, registerCopy.stepTwo, registerCopy.stepThree];
-            progressBar.style.width = widths[step] || '33.33%';
-            stepLabel.textContent = stepLabels[step] || stepLabels[0];
-            introText.textContent = step === 0 ? registerCopy.createAccount : registerCopy.completeProfile;
-        }
+        const copy = document.getElementById('registerCopy').dataset;
+        const panels = [
+            document.getElementById('stepType'),
+            document.getElementById('stepDetails'),
+            document.getElementById('stepProfile')
+        ];
+        let currentType = "{{ selected_account_type if selected_account_type in ('Client', 'Driver', 'Mechanic') else '' }}";
+        let currentStep = 0;
 
         function updateAccountType(type) {
             currentType = type;
             accountTypeInput.value = type;
-            const selectedOption = document.querySelector(`.account-option[data-type="${type}"]`);
-            const localizedRole = selectedOption.dataset.label;
-            selectedAccountLabel.textContent = localizedRole;
-            detailsTitle.textContent = registerCopy.accountTitle.replace('{role}', localizedRole);
-            setStep(document.querySelector('#stepDetails').classList.contains('active') ? 1
-                : document.querySelector('#stepDocuments').classList.contains('active') ? 2 : 0);
+            const option = document.querySelector(`.account-option[data-type="${type}"]`);
+            selectedAccountLabel.textContent = option.dataset.label;
+            detailsTitle.textContent = copy.accountTitle.replace('{role}', option.dataset.label);
             document.querySelectorAll('.account-option').forEach((button) => {
                 button.classList.toggle('selected', button.dataset.type === type);
             });
+            if (currentStep === 2) setStep(2);
+        }
+
+        function setStep(step) {
+            currentStep = step;
+            panels.forEach((panel, index) => panel.classList.toggle('active', index === step));
+            document.getElementById('progressBar').style.width = ['33.33%', '66.66%', '100%'][step];
+            document.getElementById('stepLabel').textContent = [copy.stepOne, copy.stepTwo, copy.stepThree][step];
+            document.getElementById('introText').textContent = step === 0 ? copy.createAccount : copy.completeProfile;
+
+            document.querySelectorAll('#stepDetails input, #stepDetails select, #stepDetails textarea').forEach((field) => {
+                field.disabled = step !== 1;
+            });
+            document.querySelectorAll('#driverFields input').forEach((field) => {
+                field.disabled = step !== 2 || currentType !== 'Driver';
+            });
+            document.querySelectorAll('#mechanicFields input, #mechanicFields textarea, #mechanicFields select').forEach((field) => {
+                field.disabled = step !== 2 || currentType !== 'Mechanic';
+            });
+            document.getElementById('driverFields').hidden = currentType !== 'Driver';
+            document.getElementById('mechanicFields').hidden = currentType !== 'Mechanic';
+            document.getElementById('detailsBack').disabled = step !== 1;
+            document.getElementById('detailsNext').disabled = step !== 1;
+            document.getElementById('profileBack').disabled = step !== 2;
         }
 
         document.querySelectorAll('.account-option').forEach((button) => {
             button.addEventListener('click', () => updateAccountType(button.dataset.type));
         });
-
         document.getElementById('typeNext').addEventListener('click', () => {
-            updateAccountType(currentType);
+            if (!currentType) return;
             setStep(1);
         });
-
         document.getElementById('detailsBack').addEventListener('click', () => setStep(0));
+        document.getElementById('profileBack').addEventListener('click', () => setStep(1));
         document.getElementById('detailsNext').addEventListener('click', () => {
-            const requiredFields = document.querySelectorAll('#stepDetails input[required]');
-            const invalidField = Array.from(requiredFields).find((field) => !field.checkValidity());
+            const invalidField = Array.from(document.querySelectorAll('#stepDetails input[required]'))
+                .find((field) => !field.checkValidity());
             if (invalidField) {
                 invalidField.reportValidity();
                 return;
             }
-
             const password = passwordInput.value;
-            const confirm = confirmPasswordInput.value;
-            const rules = {
-                minLength: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                lowercase: /[a-z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[^A-Za-z0-9\s]/.test(password),
-                maxLength: password.length <= 64,
-            };
-
-            const allRulesOk = Object.values(rules).every(Boolean);
-            const matches = password && password === confirm;
-
-            if (!allRulesOk || !matches) {
-                passwordNote.textContent = registerCopy.passwordFix;
+            const rulesOk = password.length >= 8 && password.length <= 64
+                && /[A-Z]/.test(password) && /[a-z]/.test(password)
+                && /[0-9]/.test(password) && /[^A-Za-z0-9\s]/.test(password);
+            if (!rulesOk || password !== confirmPasswordInput.value) {
+                passwordNote.textContent = copy.passwordFix;
                 passwordNote.classList.remove('valid');
                 return;
             }
-
-            passwordNote.textContent = registerCopy.passwordGood;
-            passwordNote.classList.add('valid');
-
-            if (currentType === 'Driver' || currentType === 'Mechanic') {
-                setStep(2);
+            if (currentType === 'Client') {
+                form.requestSubmit();
                 return;
             }
-
-            form.submit();
+            passwordNote.textContent = copy.passwordGood;
+            passwordNote.classList.add('valid');
+            setStep(2);
         });
 
-        document.getElementById('documentsBack').addEventListener('click', () => setStep(1));
-
-        form.addEventListener('submit', (event) => {
-            const activeFields = currentType === 'Driver'
-                ? document.querySelectorAll('#driverStep input[required]')
-                : currentType === 'Mechanic'
-                    ? document.querySelectorAll('#mechanicFields input[required]')
-                    : [];
-            const invalidField = Array.from(activeFields).find((field) => !field.checkValidity());
-            const servicesSelected = document.querySelector(
-                '#mechanicFields input[name="roadside_available"]:checked, #mechanicFields input[name="workshop_available"]:checked'
-            );
-
-            if (invalidField) {
-                event.preventDefault();
-                invalidField.reportValidity();
-            } else if (currentType === 'Mechanic' && !servicesSelected) {
-                event.preventDefault();
-                const applicationNote = document.getElementById('applicationNote');
-                applicationNote.textContent = registerCopy.selectService;
-                applicationNote.classList.remove('valid');
+        document.querySelectorAll('[data-rule]').forEach((item) => {
+            const test = {
+                minLength: (value) => value.length >= 8,
+                uppercase: (value) => /[A-Z]/.test(value),
+                lowercase: (value) => /[a-z]/.test(value),
+                number: (value) => /[0-9]/.test(value),
+                special: (value) => /[^A-Za-z0-9\s]/.test(value),
+                maxLength: (value) => value.length <= 64
+            }[item.dataset.rule];
+            const update = () => item.classList.toggle('valid', test(passwordInput.value));
+            passwordInput.addEventListener('input', update);
+            update();
+        });
+        function updatePasswordMatch() {
+            if (!confirmPasswordInput.value) {
+                passwordNote.textContent = '';
+                return;
             }
-        });
+            const matches = passwordInput.value === confirmPasswordInput.value;
+            passwordNote.textContent = matches ? copy.passwordMatch : copy.passwordMismatch;
+            passwordNote.classList.toggle('valid', matches);
+        }
+        passwordInput.addEventListener('input', updatePasswordMatch);
+        confirmPasswordInput.addEventListener('input', updatePasswordMatch);
 
-        document.querySelectorAll('.eye-toggle').forEach((button) => {
+        document.querySelectorAll('.toggle-password').forEach((button) => {
             button.addEventListener('click', () => {
                 const input = document.getElementById(button.dataset.target);
                 const icon = button.querySelector('i');
-                const isPassword = input.type === 'password';
-                input.type = isPassword ? 'text' : 'password';
-                icon.classList.toggle('fa-eye', !isPassword);
-                icon.classList.toggle('fa-eye-slash', isPassword);
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                icon.classList.toggle('fa-eye', !show);
+                icon.classList.toggle('fa-eye-slash', show);
             });
         });
 
-        function updatePasswordRules() {
-            const password = passwordInput.value;
-            const values = {
-                minLength: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                lowercase: /[a-z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[^A-Za-z0-9\s]/.test(password),
-                maxLength: password.length <= 64,
-            };
-
-            document.querySelectorAll('[data-rule]').forEach((item) => {
-                const valid = values[item.dataset.rule];
-                item.classList.toggle('valid', valid);
-            });
-
-            const confirm = confirmPasswordInput.value;
-            if (confirm.length > 0) {
-                const matches = password === confirm;
-                passwordNote.textContent = matches ? registerCopy.passwordMatch : registerCopy.passwordMismatch;
-                passwordNote.classList.toggle('valid', matches);
-            } else {
-                passwordNote.textContent = '';
+        form.addEventListener('submit', (event) => {
+            const activeRequired = currentType === 'Driver'
+                ? document.querySelectorAll('#driverFields [required]')
+                : currentType === 'Mechanic'
+                    ? document.querySelectorAll('#mechanicFields [required]')
+                    : [];
+            const invalidField = Array.from(activeRequired).find((field) => !field.checkValidity());
+            if (invalidField) {
+                event.preventDefault();
+                invalidField.reportValidity();
+                return;
             }
-        }
+            if (currentType === 'Mechanic' && !document.querySelector(
+                '#mechanicFields [name="roadside_available"]:checked, #mechanicFields [name="workshop_available"]:checked'
+            )) {
+                event.preventDefault();
+                const note = document.getElementById('profileNote');
+                note.textContent = copy.selectService;
+                note.classList.remove('valid');
+            }
+        });
 
-        passwordInput.addEventListener('input', updatePasswordRules);
-        confirmPasswordInput.addEventListener('input', updatePasswordRules);
+        if (currentType) updateAccountType(currentType);
         setStep(0);
     </script>
 </body>
