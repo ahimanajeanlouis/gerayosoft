@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.get('gfix_request_title', 'Request repair | GerayoFix') }}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f4f5f7;font-family:Arial,sans-serif;color:#171717}
+    .wrap{width:min(100% - 32px,760px);margin:30px auto}
+    .panel{background:#fff;padding:clamp(18px,5vw,28px);border-radius:18px;box-shadow:0 8px 28px #0000000c}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{color:#ef8b00;font-weight:800;font-size:22px;text-decoration:none}
+    .muted{color:#667085;line-height:1.55;overflow-wrap:anywhere}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .field{min-width:0;margin:12px 0}
+    .field label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+    .field input,.field select,.field textarea{width:100%;min-height:45px;padding:12px;border:1px solid #d0d5dd;border-radius:9px;font:inherit}
+    .field textarea{min-height:110px;resize:vertical}
+    .btn{width:100%;min-height:46px;background:#ff9f1c;border:0;border-radius:9px;padding:13px 18px;font-weight:800;cursor:pointer}
+    .message{background:#fff2d8;padding:12px;border-radius:9px;line-height:1.5}
+    .back{display:inline-block;margin-top:18px;color:#333}
+    .language-switch{display:inline-flex}
+    @media(max-width:600px){.wrap{width:min(100% - 20px,760px);margin:10px auto}.grid{grid-template-columns:1fr;gap:0}.panel{border-radius:14px}.back{padding:8px 0}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <div class="top">
+        <a class="brand" href="{{ url_for('gerayofix_find') }}">GerayoFix</a>
+        {% include '_language_switch.html' %}
+      </div>
+      <h1>{{ t.get('gfix_request_mechanic_heading', 'Request a mechanic') }}</h1>
+      <h2>{{ mechanic.business_name }}</h2>
+      <p class="muted">{{ mechanic.service_area }} · {{ mechanic.phone }}</p>
+      <p class="muted">{{ t.get('gfix_request_safety_note', 'Describe the issue clearly. Do not submit emergency medical or personal-safety requests through this form.') }}</p>
+      {% if message %}<p class="message" role="alert">{{ message }}</p>{% endif %}
+      <form method="post">
+        <div class="grid">
+          <div class="field">
+            <label for="assistance_type">{{ t.get('gfix_where_service', 'Where do you need service?') }} *</label>
+            <select id="assistance_type" name="assistance_type" required>
+              <option value="">{{ t.get('gfix_choose', 'Choose') }}</option>
+              {% if mechanic.roadside_available %}<option value="Roadside">{{ t.get('gfix_roadside', 'Roadside') }}</option>{% endif %}
+              {% if mechanic.workshop_available %}<option value="Workshop">{{ t.get('gfix_workshop', 'Workshop') }}</option>{% endif %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="vehicle_type">{{ t.get('gfix_vehicle_type', 'Vehicle type') }} *</label>
+            <select id="vehicle_type" name="vehicle_type" required>
+              <option value="">{{ t.get('gfix_choose', 'Choose') }}</option>
+              <option value="Motorcycle">{{ t.get('gfix_motorcycle', 'Motorcycle') }}</option>
+              <option value="Car">{{ t.get('gfix_car', 'Car') }}</option>
+              <option value="Other">{{ t.get('gfix_other', 'Other') }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="service_type">{{ t.get('gfix_repair_category', 'Repair category') }} *</label>
+            <select id="service_type" name="service_type" required>
+              <option value="">{{ t.get('gfix_choose', 'Choose') }}</option>
+              <option value="Engine / mechanical">{{ t.get('gfix_engine', 'Engine / mechanical') }}</option>
+              <option value="Tyre / puncture">{{ t.get('gfix_tyre', 'Tyre / puncture') }}</option>
+              <option value="Battery / electrical">{{ t.get('gfix_battery', 'Battery / electrical') }}</option>
+              <option value="Fuel problem">{{ t.get('gfix_fuel', 'Fuel problem') }}</option>
+              <option value="Brakes">{{ t.get('gfix_brakes', 'Brakes') }}</option>
+              <option value="Accident damage">{{ t.get('gfix_accident', 'Accident damage') }}</option>
+              <option value="Other">{{ t.get('gfix_other', 'Other') }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="vehicle_details">{{ t.get('gfix_vehicle_details', 'Vehicle details') }}</label>
+            <input id="vehicle_details" name="vehicle_details" placeholder="{{ t.get('gfix_vehicle_details_placeholder', 'Make, model, registration (optional)') }}">
+          </div>
+        </div>
+        <div class="field">
+          <label for="location_text">{{ t.get('gfix_current_location', 'Your current location / workshop destination') }} *</label>
+          <input id="location_text" name="location_text" required maxlength="255" placeholder="{{ t.get('gfix_location_placeholder', 'Road, sector, landmark or workshop address') }}">
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="latitude">{{ t.get('gfix_latitude_optional', 'Latitude (optional)') }}</label>
+            <input id="latitude" name="latitude" type="number" step="any" min="-90" max="90">
+          </div>
+          <div class="field">
+            <label for="longitude">{{ t.get('gfix_longitude_optional', 'Longitude (optional)') }}</label>
+            <input id="longitude" name="longitude" type="number" step="any" min="-180" max="180">
+          </div>
+        </div>
+        <div class="field">
+          <label for="issue_description">{{ t.get('gfix_what_happened', 'What happened?') }} *</label>
+          <textarea id="issue_description" name="issue_description" required maxlength="3000" placeholder="{{ t.get('gfix_issue_placeholder', 'Explain the problem and any symptoms') }}"></textarea>
+        </div>
+        <button class="btn" type="submit">{{ t.get('gfix_send_repair_request', 'Send repair request') }}</button>
+      </form>
+      <a class="back" href="{{ url_for('gerayofix_find') }}">← {{ t.get('gfix_back_to_mechanics', 'Back to mechanics') }}</a>
+    </section>
+  </main>
+  <script>
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          document.getElementById('latitude').value = position.coords.latitude;
+          document.getElementById('longitude').value = position.coords.longitude;
+        },
+        () => {},
+        {timeout: 3000}
+      );
+    }
+  </script>
+</body>
+</html>

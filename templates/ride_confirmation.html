@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'auto' if lang == 'rw' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ t.get('ride_request_sent', 'ride_request_sent') }} - GerayoSoft</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #171717;
+      background: #f5f7f8;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: radial-gradient(circle at 90% 5%, rgba(255, 102, 0, 0.11), transparent 25%), #f5f7f8;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+      padding: 0 clamp(20px, 6vw, 80px);
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid #e8eaec;
+    }
+
+    .brand {
+      color: #171717;
+      font-size: 22px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .brand span { color: #f26722; }
+
+    .page-main {
+      display: grid;
+      place-items: center;
+      padding: 36px 20px;
+    }
+
+    .confirmation {
+      width: min(100%, 620px);
+      padding: clamp(26px, 6vw, 48px);
+      border: 1px solid #e8eaec;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(28, 36, 42, 0.08);
+      animation: arrive 380ms ease-out both;
+    }
+
+    .success-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      margin-bottom: 22px;
+      border-radius: 18px;
+      background: #e9f7ef;
+      color: #16834c;
+      font-size: 25px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 6vw, 34px);
+      line-height: 1.2;
+    }
+
+    .message {
+      margin: 0;
+      color: #667078;
+      line-height: 1.65;
+    }
+
+    .ride-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+      margin: 30px 0;
+      padding: 22px 0;
+      border-top: 1px solid #e8eaec;
+      border-bottom: 1px solid #e8eaec;
+    }
+
+    .detail-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #78828a;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      overflow-wrap: anywhere;
+      color: #20262a;
+      font-size: 15px;
+      font-weight: 650;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #875800;
+    }
+
+    .status-pill i { color: #e5a500; }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .dashboard-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 6px;
+      background: #171717;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 160ms ease, transform 160ms ease;
+    }
+
+    .dashboard-link:hover {
+      background: #f26722;
+      transform: translateY(-1px);
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 520px) {
+      .ride-details { grid-template-columns: 1fr; gap: 14px; }
+      .actions, .dashboard-link { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">Gerayo<span>Soft</span></a>
+  </header>
+
+  <main class="page-main">
+    <section class="confirmation" aria-labelledby="confirmation-title">
+      <div class="success-icon" aria-hidden="true"><i class="fas fa-check"></i></div>
+      <h1 id="confirmation-title">{{ t.get('ride_request_sent', 'ride_request_sent') }}</h1>
+      <p class="message">{{ t.get('ride_request_success_message', 'ride_request_success_message') }}</p>
+
+      <div class="ride-details">
+        <div>
+          <span class="detail-label">{{ t.get('pickup', 'pickup') }}</span>
+          <span class="detail-value">{{ ride.pickup }}</span>
+        </div>
+        <div>
+          <span class="detail-label">{{ t.get('destination', 'destination') }}</span>
+          <span class="detail-value">{{ ride.destination }}</span>
+        </div>
+        <div>
+          <span class="detail-label">{{ t.get('ride_type', 'ride_type') }}</span>
+          <span class="detail-value">{{ ride.ride_type }}</span>
+        </div>
+        <div>
+          <span class="detail-label">{{ t.get('distance', 'distance') }}</span>
+          <span class="detail-value">{{ ride.distance_km }} km</span>
+        </div>
+        <div>
+          <span class="detail-label">{{ t.get('form_estimated_price', 'form_estimated_price') }}</span>
+          <span class="detail-value">{{ ride.price }} FRW</span>
+        </div>
+        <div>
+          <span class="detail-label">{{ t.get('heading_ride_status', 'heading_ride_status') }}</span>
+          <span class="detail-value status-pill"><i class="fas fa-clock" aria-hidden="true"></i>{{ t.get('ride_status_' ~ ride.status|lower, ride.status) }}</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="dashboard-link" href="{{ url_for('client_dashboard') }}">
+          {{ t.get('back_to_dashboard', 'back_to_dashboard') }}
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
